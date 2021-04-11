@@ -18,6 +18,7 @@ public class PlayerWarhead: SKSpriteNode {
         self.explodeRadius = explodeRadius
         self.targetCoordinate = targetCoordinate
         self.gameScene = gameScene
+        
         super.init(texture: SKTexture(imageNamed: "Sprites/warhead_small_friendly.png"), color: .clear, size: CGSize(width: 5, height: 5))
         self.position = position
         

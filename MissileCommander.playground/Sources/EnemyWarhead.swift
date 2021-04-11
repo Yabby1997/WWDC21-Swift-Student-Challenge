@@ -16,8 +16,13 @@ public class EnemyWarhead: SKSpriteNode {
         self.distance = distance
         self.explodeRadius = explodeRadius
         self.targetCoordinate = targetCoordinate
+        
         super.init(texture: SKTexture(imageNamed: "Sprites/warhead_small_enemy.png"), color: .clear, size: CGSize(width: 5, height: 5))
         self.position = position
+        
+        self.physicsBody = SKPhysicsBody(circleOfRadius: self.size.width / 2)
+        self.physicsBody?.categoryBitMask = enemyWarheadCategory
+        self.physicsBody?.collisionBitMask = 0
         
         move()
     }

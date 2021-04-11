@@ -1,7 +1,7 @@
 
 import SpriteKit
 
-public class GameScene: SKScene {
+public class GameScene: SKScene, SKPhysicsContactDelegate {
     public var globalCurrentTime: TimeInterval!
     public var silos: [Silo] = []
     public var cities: [City] = []
@@ -18,19 +18,35 @@ public class GameScene: SKScene {
         physicsBody?.friction = 0.0
         
         self.backgroundColor = .black
+        self.physicsWorld.contactDelegate = self
         
         generateSilos()
         doomsdayMachine()
     }
     
-    func doomsdayMachine() {
-        doomsdayClock?.invalidate()
-        doomsdayClock = Timer.scheduledTimer(timeInterval: TimeInterval(10), target: self, selector: #selector(generateEnemyWarhead), userInfo: nil, repeats: true)
+    public func didBegin(_ contact: SKPhysicsContact) {
+        let collision = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
+        
+        guard let nodeA = contact.bodyA.node else { return }
+        guard let nodeB = contact.bodyB.node else { return }
+        
+        if collision == enemyWarheadCategory | playerExplosionCategory {
+            let enemyWarhead = (contact.bodyA.categoryBitMask == enemyWarheadCategory ? nodeA : nodeB) as! EnemyWarhead
+            
+            enemyWarhead.removeFromParent()
+            let newExplosion = PlayerWarheadExplosion(position: contact.contactPoint)
+            self.addChild(newExplosion)
+        }
     }
     
     // update game
     public override func update(_ currentTime: TimeInterval) {
         globalCurrentTime = currentTime
+    }
+    
+    func doomsdayMachine() {
+        doomsdayClock?.invalidate()
+        doomsdayClock = Timer.scheduledTimer(timeInterval: TimeInterval(10), target: self, selector: #selector(generateEnemyWarhead), userInfo: nil, repeats: true)
     }
     
     // mouse clicked
