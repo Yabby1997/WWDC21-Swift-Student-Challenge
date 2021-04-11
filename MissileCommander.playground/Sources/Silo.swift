@@ -9,21 +9,26 @@ protocol siloDelegate {
 public class Silo: SKSpriteNode{
     var delegate: siloDelegate?
     var nextLaunchTime: TimeInterval
+    var numOfLoadedMissiles: Int
+    var reloadClock: Timer!
     
-    var reloadTime: CGFloat {
-        let reloadTimeBonus = CGFloat((scene as! GameScene).cities.count)
-        return 5.0 - (0.2 * reloadTimeBonus)
+    var currentTime: TimeInterval {
+        return (scene as! GameScene).globalCurrentTime!
+    }
+    
+    var reloadTime: Double {
+        let reloadTimeBonus = (scene as! GameScene).cities.count
+        return 5.0 - (0.2 * Double(reloadTimeBonus))
     }
     
     var isLoaded: Bool {
-        guard let currentTime = (scene as! GameScene).globalCurrentTime else { return false }
-        let loaded = self.nextLaunchTime <= currentTime
-        return loaded
+        return self.numOfLoadedMissiles > 0
     }
     
     init(position: CGPoint) {
         nextLaunchTime = 0.0
-        super.init(texture: SKTexture(imageNamed: "Sprites/silo.png"), color: .clear, size: CGSize(width: 50, height: 50))
+        self.numOfLoadedMissiles = GameScene.maximumMissileCapacity
+        super.init(texture: SKTexture(imageNamed: "Sprites/silo_\(GameScene.maximumMissileCapacity).png"), color: .clear, size: CGSize(width: 30, height: 30))
         self.position = position
     }
     
@@ -31,12 +36,32 @@ public class Silo: SKSpriteNode{
         fatalError("init(coder:) has not been implemented")
     }
     
+    func reload() {
+        if self.numOfLoadedMissiles < GameScene.maximumMissileCapacity {
+            self.numOfLoadedMissiles = self.numOfLoadedMissiles + 1
+            self.changeTexture()
+        }
+    }
+    
+    func changeTexture() {
+        let siloTexture = SKTexture(imageNamed: "Sprites/silo_\(numOfLoadedMissiles).png")
+        let action = SKAction.setTexture(siloTexture, resize: false)
+        self.run(action)
+    }
+    
     // make a new instance of friendly warhead and make it's destination to coordinate
     func shoot(coordinate: CGPoint, distance: CGFloat) {
-        playSound(sound: "Audios/launch.wav")
         guard let currentTime = (scene as! GameScene).globalCurrentTime else { return }
         self.nextLaunchTime = currentTime + Double(reloadTime)
-        let projectile = PlayerWarhead(position: self.position, distance: distance, velocity: 75, explodeRadius: 0.5, targetCoordinate: coordinate)
+        let projectile = PlayerWarhead(position: self.position, distance: distance, velocity: 200, explodeRadius: 0.5, targetCoordinate: coordinate)
+        
+        self.numOfLoadedMissiles = self.numOfLoadedMissiles - 1
+        changeTexture()
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + reloadTime) {
+            self.reload()
+        }
+        
         delegate?.silo(warhead: projectile, scene: self.delegate as! SKScene)
     }
 }

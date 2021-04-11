@@ -5,6 +5,7 @@ public class PlayerWarhead: SKSpriteNode {
     var distance: CGFloat
     var explodeRadius: CGFloat
     var targetCoordinate: CGPoint
+    let missileLaunchSound = soundPlayer(sound: "Audios/launch_2.wav")
     
     var duration: TimeInterval {
         return TimeInterval(self.distance / self.velocity)
@@ -17,6 +18,8 @@ public class PlayerWarhead: SKSpriteNode {
         self.targetCoordinate = targetCoordinate
         super.init(texture: SKTexture(imageNamed: "Sprites/warhead_small_friendly.png"), color: .clear, size: CGSize(width: 5, height: 5))
         self.position = position
+        guard let missileLaunchSound = missileLaunchSound else { return }
+        missileLaunchSound.play()
         
         move()
     }
@@ -28,6 +31,10 @@ public class PlayerWarhead: SKSpriteNode {
     func move() {
         let action = SKAction.move(to: self.targetCoordinate, duration: duration)
         let actionDone = SKAction.removeFromParent()
-        self.run(SKAction.sequence([action, actionDone]))
+        let explode = SKAction.run {
+            print("DEBUG : Explode at \(self.position)")
+        }
+        
+        self.run(SKAction.sequence([action, explode, actionDone]))
     }
 }

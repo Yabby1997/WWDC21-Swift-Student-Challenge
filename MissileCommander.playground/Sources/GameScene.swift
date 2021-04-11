@@ -5,23 +5,20 @@ public class GameScene: SKScene {
     public var globalCurrentTime: TimeInterval!
     public var silos: [Silo] = []
     public var cities: [City] = []
-    public var siloLocation = [0, 7, 14]
+    public var siloLocation = [1, 10, 19]
     public var cityLocation = [1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13]
     public var enemyWarheads: [EnemyWarhead] = []
     public var friendlyWarhead: [PlayerWarhead] = []
     public var doomsdayClock: Timer!
     
+    static var maximumMissileCapacity: Int = 5
+    
     public override func didMove(to view: SKView) {
         physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
         physicsBody?.friction = 0.0
         
-        //generateBackground()
         generateSilos()
-        //generateCities()
-        //generateSurface()
-        //generateUnderground()
         doomsdayMachine()
-        
     }
     
     func doomsdayMachine() {
@@ -76,10 +73,10 @@ public class GameScene: SKScene {
     @objc func generateEnemyWarhead() {
         let candidateLocation = cityLocation + siloLocation
         for i in 0...3 {
-            let fromX = Int.random(in: 1...750)
+            let fromX = Int.random(in: 1...600)
             let toX = 25 + candidateLocation.randomElement()! * 50
-            let from = CGPoint(x: fromX, y: 900)
-            let to = CGPoint(x: toX, y: 125)
+            let from = CGPoint(x: fromX, y: 500)
+            let to = CGPoint(x: toX, y: 25)
             
             let distance = distanceToTarget(from: from, to: to)
             let enemyWarhead = EnemyWarhead(position: from, velocity: 50, distance: distance, explodeRadius: 50, targetCoordinate: to)
@@ -98,8 +95,8 @@ public class GameScene: SKScene {
     
     func generateSilos() {
         for i in siloLocation {
-            let x = 25 + i * 50
-            let y = 125
+            let x = 10 + i * 20
+            let y = 25
             let position = CGPoint(x: x, y: y)
             
             let silo = Silo(position: position)
@@ -112,36 +109,13 @@ public class GameScene: SKScene {
     
     func generateCities() {
         for i in cityLocation {
-            let x = 25 + i * 50
-            let y = 125
+            let x = 10 + i * 20
+            let y = 25
             let position = CGPoint(x: x, y: y)
             
             let city = City(position: position)
             cities.append(city)
             addChild(city)
-        }
-    }
-    
-    func generateSurface() {
-        for i in 0...15 {
-            let x = 25 + i * 50
-            let y = 75
-            let position = CGPoint(x: x, y: y)
-            
-            let groundSurface = SKSpriteNode(texture: SKTexture(image: #imageLiteral(resourceName: "surface_up.png")))
-            groundSurface.position = CGPoint(x: x, y: y)
-            addChild(groundSurface)
-        }
-    }
-    
-    func generateUnderground() {
-        for i in 0...15 {
-            let x = 25 + i * 50
-            let y = 25
-                
-            let underground = SKSpriteNode(texture: SKTexture(image: #imageLiteral(resourceName: "underground.png")))
-            underground.position = CGPoint(x: x, y: y)
-            addChild(underground)
         }
     }
 }
