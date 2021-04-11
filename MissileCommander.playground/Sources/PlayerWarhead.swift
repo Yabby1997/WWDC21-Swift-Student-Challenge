@@ -5,7 +5,7 @@ public class PlayerWarhead: SKSpriteNode {
     var distance: CGFloat
     var explodeRadius: CGFloat
     var targetCoordinate: CGPoint
-    let missileLaunchSound = soundPlayer(sound: "Audios/launch_2.wav")
+    let missileLaunchSound = soundPlayer(sound: "Audios/launch.wav")
     var gameScene: SKScene
     
     var duration: TimeInterval {

@@ -76,7 +76,7 @@ public class GameScene: SKScene {
         let candidateLocation = cityLocation + siloLocation
         for i in 0...3 {
             let fromX = Int.random(in: 1...600)
-            let toX = 25 + candidateLocation.randomElement()! * 50
+            let toX = candidateLocation.randomElement()! * 30
             let from = CGPoint(x: fromX, y: 500)
             let to = CGPoint(x: toX, y: 25)
             
@@ -97,7 +97,7 @@ public class GameScene: SKScene {
     
     func generateSilos() {
         for i in siloLocation {
-            let x = 10 + i * 20
+            let x = i * 30
             let y = 25
             let position = CGPoint(x: x, y: y)
             
