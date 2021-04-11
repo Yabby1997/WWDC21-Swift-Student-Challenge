@@ -17,6 +17,8 @@ public class GameScene: SKScene {
         physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
         physicsBody?.friction = 0.0
         
+        self.backgroundColor = .black
+        
         generateSilos()
         doomsdayMachine()
     }
@@ -100,7 +102,6 @@ public class GameScene: SKScene {
             let position = CGPoint(x: x, y: y)
             
             let silo = Silo(position: position)
-            silo.delegate = self
             silos.append(silo)
             
             addChild(silo)
@@ -117,11 +118,5 @@ public class GameScene: SKScene {
             cities.append(city)
             addChild(city)
         }
-    }
-}
-
-extension GameScene: siloDelegate {
-    func silo(warhead: PlayerWarhead, scene: SKScene) {
-        scene.addChild(warhead)
     }
 }

@@ -2,12 +2,7 @@
 import SpriteKit
 import AVFoundation
 
-protocol siloDelegate {
-    func silo(warhead: PlayerWarhead, scene: SKScene)
-}
-
 public class Silo: SKSpriteNode{
-    var delegate: siloDelegate?
     var nextLaunchTime: TimeInterval
     var numOfLoadedMissiles: Int
     var reloadClock: Timer!
@@ -51,9 +46,10 @@ public class Silo: SKSpriteNode{
     
     // make a new instance of friendly warhead and make it's destination to coordinate
     func shoot(coordinate: CGPoint, distance: CGFloat) {
+        guard let gameScene = scene as? GameScene else { return }
         guard let currentTime = (scene as! GameScene).globalCurrentTime else { return }
         self.nextLaunchTime = currentTime + Double(reloadTime)
-        let projectile = PlayerWarhead(position: self.position, distance: distance, velocity: 200, explodeRadius: 0.5, targetCoordinate: coordinate)
+        let projectile = PlayerWarhead(position: self.position, distance: distance, velocity: 200, explodeRadius: 0.5, targetCoordinate: coordinate, gameScene: gameScene)
         
         self.numOfLoadedMissiles = self.numOfLoadedMissiles - 1
         changeTexture()
@@ -62,6 +58,6 @@ public class Silo: SKSpriteNode{
             self.reload()
         }
         
-        delegate?.silo(warhead: projectile, scene: self.delegate as! SKScene)
+        gameScene.addChild(projectile)
     }
 }
