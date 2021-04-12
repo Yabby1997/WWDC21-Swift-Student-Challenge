@@ -35,8 +35,11 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             let enemyWarhead = (contact.bodyA.categoryBitMask == enemyWarheadCategory ? nodeA : nodeB) as! EnemyWarhead
 
             enemyWarhead.removeFromParent()
-            let newExplosion = PlayerWarheadExplosion(position: contact.contactPoint)
-            self.addChild(newExplosion)
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                let newExplosion = PlayerWarheadExplosion(position: contact.contactPoint)
+                self.addChild(newExplosion)
+            }
         }
     }
     
