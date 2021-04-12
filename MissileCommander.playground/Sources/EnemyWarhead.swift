@@ -21,7 +21,7 @@ public class EnemyWarhead: SKSpriteNode {
         
         self.physicsBody = SKPhysicsBody(circleOfRadius: self.size.width / 2)
         self.physicsBody?.affectedByGravity = false
-        sself.physicsBody?.categoryBitMask = enemyWarheadCategory
+        self.physicsBody?.categoryBitMask = enemyWarheadCategory
         self.physicsBody?.collisionBitMask = 0
         self.physicsBody?.usesPreciseCollisionDetection = true
         
