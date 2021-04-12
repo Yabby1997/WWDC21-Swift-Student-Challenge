@@ -24,15 +24,16 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         doomsdayMachine()
     }
     
+    // MARK: - collision
     public func didBegin(_ contact: SKPhysicsContact) {
         let collision = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
-        
+
         guard let nodeA = contact.bodyA.node else { return }
         guard let nodeB = contact.bodyB.node else { return }
-        
+
         if collision == enemyWarheadCategory | playerExplosionCategory {
             let enemyWarhead = (contact.bodyA.categoryBitMask == enemyWarheadCategory ? nodeA : nodeB) as! EnemyWarhead
-            
+
             enemyWarhead.removeFromParent()
             let newExplosion = PlayerWarheadExplosion(position: contact.contactPoint)
             self.addChild(newExplosion)
@@ -46,7 +47,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func doomsdayMachine() {
         doomsdayClock?.invalidate()
-        doomsdayClock = Timer.scheduledTimer(timeInterval: TimeInterval(10), target: self, selector: #selector(generateEnemyWarhead), userInfo: nil, repeats: true)
+        doomsdayClock = Timer.scheduledTimer(timeInterval: TimeInterval(3), target: self, selector: #selector(generateEnemyWarhead), userInfo: nil, repeats: true)
     }
     
     // mouse clicked

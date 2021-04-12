@@ -12,6 +12,7 @@ public class PlayerWarheadExplosion: SKSpriteNode {
         self.physicsBody?.categoryBitMask = playerExplosionCategory
         self.physicsBody?.contactTestBitMask = enemyWarheadCategory
         self.physicsBody?.collisionBitMask = 0
+        self.physicsBody?.usesPreciseCollisionDetection = true
         
         guard let explosionSound = explosionSound else { return }
         explosionSound.play()
