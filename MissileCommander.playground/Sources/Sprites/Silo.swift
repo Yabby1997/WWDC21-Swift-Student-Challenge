@@ -3,14 +3,10 @@ import SpriteKit
 import AVFoundation
 
 public class Silo: SKSpriteNode{
-    var numOfLoadedMissiles: Int {
-        didSet {
-            self.changeTexture()
-        }
-    }
-    
     var gameScene: SKScene
-    
+    var numOfLoadedMissiles: Int {
+        didSet { self.changeTexture() }
+    }
     var isLoaded: Bool {
         return self.numOfLoadedMissiles > 0
     }
@@ -20,6 +16,12 @@ public class Silo: SKSpriteNode{
         self.gameScene = gameScene
         super.init(texture: SKTexture(imageNamed: "Sprite/silo_\(GameScene.playerMaximumMissileCapacity).png"), color: .clear, size: CGSize(width: 30, height: 30))
         self.position = position
+        
+        self.physicsBody = SKPhysicsBody(rectangleOf: self.size)
+        self.physicsBody?.affectedByGravity = false
+        self.physicsBody?.categoryBitMask = playerSiloCategory
+        self.physicsBody?.collisionBitMask = 0
+        self.physicsBody?.usesPreciseCollisionDetection = true
     }
     
     required init?(coder aDecoder: NSCoder) {

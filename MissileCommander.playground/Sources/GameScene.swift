@@ -2,10 +2,10 @@
 import SpriteKit
 
 public class GameScene: SKScene, SKPhysicsContactDelegate {
-    public var silos: [Silo] = []
-    public var cities: [City] = []
     public var siloLocation = [1, 10, 19]
+    public var silos: [Silo] = []
     public var cityLocation = [1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13]
+    public var cities: [City] = []
     public var raidClock: Timer!
     
     // MARK: - Player static status
@@ -25,12 +25,12 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     static var playerExplosionChainingDelay: Double = 0.2
     
     // MARK: - Enemy static status
-    static var enemyWarheadsPerEachRaid: Int = 4
-    static var enemyWarheadRaidDuration: Double = 10.0
+    static var enemyWarheadsPerEachRaid: Int = 10
+    static var enemyWarheadRaidDuration: Double = 5.0
     static var enemyExplosionDuration: Double = 1.0
     
     public override func didMove(to view: SKView) {
-        print("TEST2")
+        print("TEST6")
         physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
         physicsBody?.friction = 0.0
         
@@ -50,6 +50,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         guard let nodeB = contact.bodyB.node else { return }
 
         switch collision {
+        
         case collisionBetweenEnemyWarheadAndExplosion:
             let enemyWarhead = (contact.bodyA.categoryBitMask == enemyWarheadCategory ? nodeA : nodeB) as! EnemyWarhead
             enemyWarhead.removeFromParent()
@@ -61,6 +62,12 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
                 let newExplosion = Explosion(position: contact.contactPoint, isHostile: true, blastRange: blastRange)
                 self.addChild(newExplosion)
             }
+            
+        case collisionBetweenPlayerSiloAndExplosion:
+            let silo = (contact.bodyA.categoryBitMask == playerSiloCategory ? nodeA : nodeB) as! Silo
+            removeSiloFromGameScene(targetSilo: silo)
+            silo.removeFromParent()
+            
         default:
             print("missing collision type")
         }
@@ -98,6 +105,12 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         return (closestSilo, closestDistance) as? (Silo, CGFloat)
     }
     
+    func removeSiloFromGameScene(targetSilo: Silo) {
+        guard let targetIndex = self.silos.firstIndex(of: targetSilo) else { return }
+        self.silos.remove(at: targetIndex)
+        self.siloLocation.remove(at: targetIndex)
+    }
+    
     func getDistance(from: CGPoint, to: CGPoint) -> CGFloat {
         let xDistance = from.x - to.x
         let yDistance = from.y - to.y
@@ -114,7 +127,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             let to = CGPoint(x: toX, y: 25)
             
             let distance = getDistance(from: from, to: to)
-            let enemyWarhead = EnemyWarhead(position: from, distance: distance, velocity: 100, targetCoordinate: to, blastRange: 60, gameScene: self)
+            let enemyWarhead = EnemyWarhead(position: from, distance: distance, velocity: 75, targetCoordinate: to, blastRange: 30, gameScene: self)
             addChild(enemyWarhead)
         }
     }
