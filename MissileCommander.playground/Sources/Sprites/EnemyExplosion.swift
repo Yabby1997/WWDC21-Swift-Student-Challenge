@@ -1,7 +1,7 @@
 import SpriteKit
 
 public class EnemyExplosion: Explosion {
-    let explosionSound = soundPlayer(sound: "Audio/friendly_explosion.wav")
+    let explosionSound = soundPlayer(sound: "Audio/hostile_explosion.wav")
 
     override init(position: CGPoint, blastRange: Int) {
         super.init(position: position, blastRange: blastRange)

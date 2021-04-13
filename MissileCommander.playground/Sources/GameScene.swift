@@ -30,7 +30,6 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     static var enemyExplosionDuration: Double = 1.0
     
     public override func didMove(to view: SKView) {
-        print("TEST8")
         physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
         physicsBody?.friction = 0.0
         
