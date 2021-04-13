@@ -6,12 +6,18 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     public var cities: [City] = []
     public var siloLocation = [1, 10, 19]
     public var cityLocation = [1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13]
-    public var enemyWarheads: [EnemyWarhead] = []
-    public var friendlyWarhead: [PlayerWarhead] = []
-    public var doomsdayClock: Timer!
+    public var raidClock: Timer!
     
     // MARK: - Player static status
-    static var playerMaximumMissileCapacity: Int = 1
+    var playerScore: Int = 0 {
+        didSet {
+            scoreLabel?.text = "\(playerScore)"
+        }
+    }
+    
+    var scoreLabel: SKLabelNode?
+    
+    static var playerMaximumMissileCapacity: Int = 5
     static var playerMissileReloadTime: Double = 5.0
     static var playerMissileVelocity: CGFloat = 200
     static var playerMissileBlastRange: Int = 5
@@ -29,8 +35,9 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         self.backgroundColor = .black
         self.physicsWorld.contactDelegate = self
         
+        generateScoreLabel()
         generateSilos()
-        doomsdayMachine()
+        raid(timeInterval: GameScene.enemyWarheadRaidDuration)
     }
     
     // MARK: - Collision
@@ -45,6 +52,8 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             let enemyWarhead = (contact.bodyA.categoryBitMask == enemyWarheadCategory ? nodeA : nodeB) as! EnemyWarhead
             enemyWarhead.removeFromParent()
             
+            self.playerScore = self.playerScore + 1
+            
             DispatchQueue.main.asyncAfter(deadline: .now() + GameScene.playerExplosionChainingDelay) {
                 let newExplosion = PlayerWarheadExplosion(position: contact.contactPoint)
                 self.addChild(newExplosion)
@@ -54,9 +63,9 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
-    func doomsdayMachine() {
-        doomsdayClock?.invalidate()
-        doomsdayClock = Timer.scheduledTimer(timeInterval: TimeInterval(GameScene.enemyWarheadRaidDuration), target: self, selector: #selector(generateEnemyWarhead), userInfo: nil, repeats: true)
+    func raid(timeInterval: TimeInterval) {
+        raidClock?.invalidate()
+        raidClock = Timer.scheduledTimer(timeInterval: TimeInterval(timeInterval), target: self, selector: #selector(generateEnemyWarhead), userInfo: nil, repeats: true)
     }
     
     // MARK: - Player click input
@@ -105,6 +114,18 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             let enemyWarhead = EnemyWarhead(position: from, distance: distance, velocity: 100, targetCoordinate: to, blastRange: 5)
             addChild(enemyWarhead)
         }
+    }
+    
+    func generateScoreLabel() {
+        let fontURL = Bundle.main.url(forResource: "Font/PressStart2P-vaV7", withExtension: "ttf")
+        CTFontManagerRegisterFontsForURL(fontURL! as CFURL, CTFontManagerScope.process, nil)
+        self.scoreLabel = SKLabelNode(fontNamed: "PressStart2P")
+        
+        self.scoreLabel?.text = "0"
+        self.scoreLabel?.fontSize = 20
+        self.scoreLabel?.fontColor = SKColor.white
+        self.scoreLabel?.position = CGPoint(x: frame.midX, y: 470)
+        self.addChild(scoreLabel!)
     }
     
     func generateSilos() {
