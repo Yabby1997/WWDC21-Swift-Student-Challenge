@@ -50,7 +50,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func doomsdayMachine() {
         doomsdayClock?.invalidate()
-        doomsdayClock = Timer.scheduledTimer(timeInterval: TimeInterval(3), target: self, selector: #selector(generateEnemyWarhead), userInfo: nil, repeats: true)
+        doomsdayClock = Timer.scheduledTimer(timeInterval: TimeInterval(10), target: self, selector: #selector(generateEnemyWarhead), userInfo: nil, repeats: true)
     }
     
     // mouse clicked
@@ -77,7 +77,6 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
                 }
             }
         }
-        
         if distance != 10_000 {
             return (closestSilo, distance) as! (Silo, CGFloat)
         } else {
@@ -101,7 +100,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             let to = CGPoint(x: toX, y: 25)
             
             let distance = distanceToTarget(from: from, to: to)
-            let enemyWarhead = EnemyWarhead(position: from, velocity: 50, distance: distance, explodeRadius: 50, targetCoordinate: to)
+            let enemyWarhead = EnemyWarhead(position: from, distance: distance, velocity: 100, targetCoordinate: to, blastRange: 5)
             addChild(enemyWarhead)
         }
     }

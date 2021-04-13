@@ -49,7 +49,7 @@ public class Silo: SKSpriteNode{
         guard let gameScene = scene as? GameScene else { return }
         guard let currentTime = (scene as! GameScene).globalCurrentTime else { return }
         self.nextLaunchTime = currentTime + Double(reloadTime)
-        let projectile = PlayerWarhead(position: self.position, distance: distance, velocity: 200, explodeRadius: 0.5, targetCoordinate: coordinate, gameScene: gameScene)
+        let projectile = PlayerWarhead(position: self.position, distance: distance, velocity: 200, targetCoordinate: coordinate, blastRange: 5, gameScene: gameScene)
         
         self.numOfLoadedMissiles = self.numOfLoadedMissiles - 1
         changeTexture()
