@@ -20,7 +20,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     static var playerMaximumMissileCapacity: Int = 5
     static var playerMissileReloadTime: Double = 5.0
     static var playerMissileVelocity: CGFloat = 200
-    static var playerMissileBlastRange: Int = 5
+    static var playerExplosionBlastRange: Int = 50
     static var playerExplosionDuration: Double = 1.0
     static var playerExplosionChainingDelay: Double = 0.2
     
@@ -30,6 +30,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     static var enemyExplosionDuration: Double = 1.0
     
     public override func didMove(to view: SKView) {
+        print("TEST2")
         physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
         physicsBody?.friction = 0.0
         
@@ -52,11 +53,12 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         case collisionBetweenEnemyWarheadAndExplosion:
             let enemyWarhead = (contact.bodyA.categoryBitMask == enemyWarheadCategory ? nodeA : nodeB) as! EnemyWarhead
             enemyWarhead.removeFromParent()
+            let blastRange = enemyWarhead.blastRange
             
             self.playerScore = self.playerScore + 1
             
             DispatchQueue.main.asyncAfter(deadline: .now() + GameScene.playerExplosionChainingDelay) {
-                let newExplosion = Explosion(position: contact.contactPoint, isHostile: true)
+                let newExplosion = Explosion(position: contact.contactPoint, isHostile: true, blastRange: blastRange)
                 self.addChild(newExplosion)
             }
         default:
@@ -112,7 +114,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             let to = CGPoint(x: toX, y: 25)
             
             let distance = getDistance(from: from, to: to)
-            let enemyWarhead = EnemyWarhead(position: from, distance: distance, velocity: 100, targetCoordinate: to, blastRange: 5)
+            let enemyWarhead = EnemyWarhead(position: from, distance: distance, velocity: 100, targetCoordinate: to, blastRange: 60, gameScene: self)
             addChild(enemyWarhead)
         }
     }

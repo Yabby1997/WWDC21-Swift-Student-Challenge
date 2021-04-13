@@ -1,9 +1,8 @@
 import SpriteKit
 
 public class EnemyWarhead: Warhead {
-    
-    override init(position: CGPoint, distance: CGFloat, velocity: CGFloat, targetCoordinate: CGPoint, blastRange: Int) {
-        super.init(position: position, distance: distance, velocity: velocity, targetCoordinate: targetCoordinate, blastRange: blastRange)
+    override init(position: CGPoint, distance: CGFloat, velocity: CGFloat, targetCoordinate: CGPoint, blastRange: Int, gameScene: SKScene) {
+        super.init(position: position, distance: distance, velocity: velocity, targetCoordinate: targetCoordinate, blastRange: blastRange, gameScene: gameScene)
         
         self.color = .red
         self.colorBlendFactor = 1.0
@@ -23,7 +22,13 @@ public class EnemyWarhead: Warhead {
     
     func launch() {
         let actionMove = SKAction.move(to: self.targetCoordinate, duration: self.duration)
-        let actionDone = SKAction.removeFromParent()
-        self.run(SKAction.sequence([actionMove, actionDone]))
+        let actionRemove = SKAction.removeFromParent()
+        let actionExplode = SKAction.run { self.explode() }
+        self.run(SKAction.sequence([actionMove, actionRemove, actionExplode]))
+    }
+    
+    func explode() {
+        let explosion = Explosion(position: self.position, isHostile: false, blastRange: self.blastRange)
+        self.gameScene.addChild(explosion)
     }
 }

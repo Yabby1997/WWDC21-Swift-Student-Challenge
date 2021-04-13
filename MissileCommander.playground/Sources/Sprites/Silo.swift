@@ -41,7 +41,7 @@ public class Silo: SKSpriteNode{
                                           distance: distance,
                                           velocity: GameScene.playerMissileVelocity,
                                           targetCoordinate: coordinate,
-                                          blastRange: GameScene.playerMissileBlastRange,
+                                          blastRange: GameScene.playerExplosionBlastRange,
                                           gameScene: self.gameScene)
         
         self.numOfLoadedMissiles = self.numOfLoadedMissiles - 1

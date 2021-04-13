@@ -4,8 +4,8 @@ public class Explosion: SKSpriteNode {
     let hostileExplosionSound = soundPlayer(sound: "Audio/hostile_explosion.wav")
     let friendlyExplosionSound = soundPlayer(sound: "Audio/friendly_explosion.wav")
 
-    public init(position: CGPoint, isHostile: Bool) {
-        super.init(texture: SKTexture(imageNamed: "Sprite/player_warhead_explosion.png"), color: .clear, size: CGSize(width: 30, height: 30))
+    public init(position: CGPoint, isHostile: Bool, blastRange: Int) {
+        super.init(texture: SKTexture(imageNamed: "Sprite/explosion_\(blastRange).png"), color: .clear, size: CGSize(width: blastRange, height: blastRange))
         self.position = position
         
         self.physicsBody = SKPhysicsBody(circleOfRadius: self.size.width / 2)
@@ -17,7 +17,7 @@ public class Explosion: SKSpriteNode {
         
         
         if isHostile {
-            print("적")
+            self.color = .red
             guard let explosionSound = hostileExplosionSound else { return }
             explosionSound.play()
             
@@ -25,7 +25,6 @@ public class Explosion: SKSpriteNode {
                 self.removeFromParent()
             }
         } else {
-            print("아")
             guard let explosionSound = friendlyExplosionSound else { return }
             explosionSound.play()
             

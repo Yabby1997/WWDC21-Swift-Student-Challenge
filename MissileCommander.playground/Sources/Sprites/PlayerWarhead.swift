@@ -2,11 +2,9 @@ import SpriteKit
 
 public class PlayerWarhead: Warhead {
     let missileLaunchSound = soundPlayer(sound: "Audio/launch.wav")
-    var gameScene: SKScene
     
-    init(position: CGPoint, distance: CGFloat, velocity: CGFloat, targetCoordinate: CGPoint, blastRange: Int, gameScene: SKScene) {
-        self.gameScene = gameScene
-        super.init(position: position, distance: distance, velocity: velocity, targetCoordinate: targetCoordinate, blastRange: blastRange)
+    override init(position: CGPoint, distance: CGFloat, velocity: CGFloat, targetCoordinate: CGPoint, blastRange: Int, gameScene: SKScene) {
+        super.init(position: position, distance: distance, velocity: velocity, targetCoordinate: targetCoordinate, blastRange: blastRange, gameScene: gameScene)
         
         launch()
     }
@@ -29,7 +27,7 @@ public class PlayerWarhead: Warhead {
     }
 
     func explode() {
-        let explosion = Explosion(position: self.position, isHostile: false)
-        gameScene.addChild(explosion)
+        let explosion = Explosion(position: self.position, isHostile: false, blastRange: self.blastRange)
+        self.gameScene.addChild(explosion)
     }
 }
