@@ -27,6 +27,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     // MARK: - Enemy static status
     static var enemyWarheadsPerEachRaid: Int = 4
     static var enemyWarheadRaidDuration: Double = 10.0
+    static var enemyExplosionDuration: Double = 1.0
     
     public override func didMove(to view: SKView) {
         physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
@@ -48,14 +49,14 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         guard let nodeB = contact.bodyB.node else { return }
 
         switch collision {
-        case collisionBetweenPlayerExplosionAndEnemyWarhead:
+        case collisionBetweenEnemyWarheadAndExplosion:
             let enemyWarhead = (contact.bodyA.categoryBitMask == enemyWarheadCategory ? nodeA : nodeB) as! EnemyWarhead
             enemyWarhead.removeFromParent()
             
             self.playerScore = self.playerScore + 1
             
             DispatchQueue.main.asyncAfter(deadline: .now() + GameScene.playerExplosionChainingDelay) {
-                let newExplosion = PlayerWarheadExplosion(position: contact.contactPoint)
+                let newExplosion = Explosion(position: contact.contactPoint, isHostile: true)
                 self.addChild(newExplosion)
             }
         default:

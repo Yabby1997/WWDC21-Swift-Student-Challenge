@@ -29,7 +29,7 @@ public class PlayerWarhead: Warhead {
     }
 
     func explode() {
-        let explosion = PlayerWarheadExplosion(position: self.position)
+        let explosion = Explosion(position: self.position, isHostile: false)
         gameScene.addChild(explosion)
     }
 }
