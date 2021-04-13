@@ -28,7 +28,7 @@ public class EnemyWarhead: Warhead {
     }
     
     func explode() {
-        let explosion = Explosion(position: self.position, isHostile: false, blastRange: self.blastRange)
+        let explosion = EnemyExplosion(position: self.position, blastRange: self.blastRange)
         self.gameScene.addChild(explosion)
     }
 }

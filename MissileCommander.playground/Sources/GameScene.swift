@@ -25,12 +25,12 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     static var playerExplosionChainingDelay: Double = 0.2
     
     // MARK: - Enemy static status
-    static var enemyWarheadsPerEachRaid: Int = 10
+    static var enemyWarheadsPerEachRaid: Int = 4
     static var enemyWarheadRaidDuration: Double = 5.0
     static var enemyExplosionDuration: Double = 1.0
     
     public override func didMove(to view: SKView) {
-        print("TEST6")
+        print("TEST8")
         physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
         physicsBody?.friction = 0.0
         
@@ -59,7 +59,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             self.playerScore = self.playerScore + 1
             
             DispatchQueue.main.asyncAfter(deadline: .now() + GameScene.playerExplosionChainingDelay) {
-                let newExplosion = Explosion(position: contact.contactPoint, isHostile: true, blastRange: blastRange)
+                let newExplosion = EnemyExplosion(position: contact.contactPoint, blastRange: blastRange)
                 self.addChild(newExplosion)
             }
             
