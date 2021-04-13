@@ -2,7 +2,6 @@
 import SpriteKit
 
 public class GameScene: SKScene, SKPhysicsContactDelegate {
-    public var globalCurrentTime: TimeInterval!
     public var silos: [Silo] = []
     public var cities: [City] = []
     public var siloLocation = [1, 10, 19]
@@ -11,7 +10,17 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     public var friendlyWarhead: [PlayerWarhead] = []
     public var doomsdayClock: Timer!
     
-    static var maximumMissileCapacity: Int = 5
+    // MARK: - Player static status
+    static var playerMaximumMissileCapacity: Int = 1
+    static var playerMissileReloadTime: Double = 5.0
+    static var playerMissileVelocity: CGFloat = 200
+    static var playerMissileBlastRange: Int = 5
+    static var playerExplosionDuration: Double = 1.0
+    static var playerExplosionChainingDelay: Double = 0.2
+    
+    // MARK: - Enemy static status
+    static var enemyWarheadsPerEachRaid: Int = 4
+    static var enemyWarheadRaidDuration: Double = 10.0
     
     public override func didMove(to view: SKView) {
         physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
@@ -24,94 +33,78 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         doomsdayMachine()
     }
     
-    // MARK: - collision
+    // MARK: - Collision
     public func didBegin(_ contact: SKPhysicsContact) {
         let collision = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
 
         guard let nodeA = contact.bodyA.node else { return }
         guard let nodeB = contact.bodyB.node else { return }
 
-        if collision == enemyWarheadCategory | playerExplosionCategory {
+        switch collision {
+        case collisionBetweenPlayerExplosionAndEnemyWarhead:
             let enemyWarhead = (contact.bodyA.categoryBitMask == enemyWarheadCategory ? nodeA : nodeB) as! EnemyWarhead
-
             enemyWarhead.removeFromParent()
             
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + GameScene.playerExplosionChainingDelay) {
                 let newExplosion = PlayerWarheadExplosion(position: contact.contactPoint)
                 self.addChild(newExplosion)
             }
+        default:
+            print("missing collision type")
         }
-    }
-    
-    // update game
-    public override func update(_ currentTime: TimeInterval) {
-        globalCurrentTime = currentTime
     }
     
     func doomsdayMachine() {
         doomsdayClock?.invalidate()
-        doomsdayClock = Timer.scheduledTimer(timeInterval: TimeInterval(10), target: self, selector: #selector(generateEnemyWarhead), userInfo: nil, repeats: true)
+        doomsdayClock = Timer.scheduledTimer(timeInterval: TimeInterval(GameScene.enemyWarheadRaidDuration), target: self, selector: #selector(generateEnemyWarhead), userInfo: nil, repeats: true)
     }
     
-    // mouse clicked
+    // MARK: - Player click input
     public override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         for touch: AnyObject in touches {
             let location = touch.location(in: self)
-            guard let closestSiloInfo = getClosestAvailableSilo(coordinate: location) else { return }
-            let silo = closestSiloInfo.0
-            let range = closestSiloInfo.1
-            silo.shoot(coordinate: location, distance: range)
+            guard let closestAvailableSiloInfo = getClosestAvailableSiloInfo(targetCoordinate: location) else { return }
+            let silo = closestAvailableSiloInfo.0
+            let distance = closestAvailableSiloInfo.1
+            silo.shoot(coordinate: location, distance: distance)
         }
     }
     
-    func getClosestAvailableSilo(coordinate: CGPoint) -> (Silo, CGFloat)? {
-        var distance = CGFloat(10_000)
+    func getClosestAvailableSiloInfo(targetCoordinate: CGPoint) -> (Silo, CGFloat)? {
+        var closestDistance: CGFloat = 10_000
         var closestSilo: Silo?
         
         for silo in self.silos {
             if silo.isLoaded {
-                let currentDistance = distanceToTarget(from: silo.position, to: coordinate)
-                if currentDistance.isLess(than: CGFloat(distance)) {
-                    distance = currentDistance
+                let currentDistance = getDistance(from: silo.position, to: targetCoordinate)
+                if currentDistance.isLess(than: closestDistance) {
+                    closestDistance = currentDistance
                     closestSilo = silo
                 }
             }
         }
-        if distance != 10_000 {
-            return (closestSilo, distance) as! (Silo, CGFloat)
-        } else {
-            return nil
-        }
+        return (closestSilo, closestDistance) as? (Silo, CGFloat)
     }
     
-    // if silo is loaded, return the distance between silo and designated coordinate. else, it can not fire so return maximum distance
-    func distanceToTarget(from: CGPoint, to: CGPoint) -> CGFloat {
+    func getDistance(from: CGPoint, to: CGPoint) -> CGFloat {
         let xDistance = from.x - to.x
         let yDistance = from.y - to.y
         return sqrt(xDistance * xDistance + yDistance * yDistance)
     }
     
+    // MARK: - Generating sprites
     @objc func generateEnemyWarhead() {
         let candidateLocation = cityLocation + siloLocation
-        for i in 0...3 {
+        for _ in 1...GameScene.enemyWarheadsPerEachRaid {
             let fromX = Int.random(in: 1...600)
             let toX = candidateLocation.randomElement()! * 30
             let from = CGPoint(x: fromX, y: 500)
             let to = CGPoint(x: toX, y: 25)
             
-            let distance = distanceToTarget(from: from, to: to)
+            let distance = getDistance(from: from, to: to)
             let enemyWarhead = EnemyWarhead(position: from, distance: distance, velocity: 100, targetCoordinate: to, blastRange: 5)
             addChild(enemyWarhead)
         }
-    }
-    
-    // generate terrains and buildings
-    func generateBackground() {
-        let backgroundImage = SKSpriteNode(texture: SKTexture(image: #imageLiteral(resourceName: "background.png")))
-        backgroundImage.setScale(CGFloat(750) / CGFloat(170))
-        backgroundImage.zPosition = -10
-        backgroundImage.position = CGPoint(x: frame.midX, y: frame.midY)
-        addChild(backgroundImage)
     }
     
     func generateSilos() {
@@ -120,7 +113,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             let y = 25
             let position = CGPoint(x: x, y: y)
             
-            let silo = Silo(position: position)
+            let silo = Silo(position: position, gameScene: self)
             silos.append(silo)
             
             addChild(silo)

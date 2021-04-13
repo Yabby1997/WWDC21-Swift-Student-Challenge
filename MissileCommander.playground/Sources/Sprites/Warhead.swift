@@ -8,7 +8,7 @@ public class Warhead: SKSpriteNode {
         self.duration = TimeInterval(distance / velocity)
         self.targetCoordinate = targetCoordinate
         
-        super.init(texture: SKTexture(imageNamed: "Sprites/warhead_\(blastRange).png"), color: .clear, size: CGSize(width: blastRange, height: blastRange))
+        super.init(texture: SKTexture(imageNamed: "Sprite/warhead_\(blastRange).png"), color: .clear, size: CGSize(width: blastRange, height: blastRange))
         
         self.position = position
     }

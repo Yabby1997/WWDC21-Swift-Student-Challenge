@@ -3,27 +3,22 @@ import SpriteKit
 import AVFoundation
 
 public class Silo: SKSpriteNode{
-    var nextLaunchTime: TimeInterval
-    var numOfLoadedMissiles: Int
-    var reloadClock: Timer!
-    
-    var currentTime: TimeInterval {
-        return (scene as! GameScene).globalCurrentTime!
+    var numOfLoadedMissiles: Int {
+        didSet {
+            self.changeTexture()
+        }
     }
     
-    var reloadTime: Double {
-        let reloadTimeBonus = (scene as! GameScene).cities.count
-        return 5.0 - (0.2 * Double(reloadTimeBonus))
-    }
+    var gameScene: SKScene
     
     var isLoaded: Bool {
         return self.numOfLoadedMissiles > 0
     }
     
-    init(position: CGPoint) {
-        nextLaunchTime = 0.0
-        self.numOfLoadedMissiles = GameScene.maximumMissileCapacity
-        super.init(texture: SKTexture(imageNamed: "Sprites/silo_\(GameScene.maximumMissileCapacity).png"), color: .clear, size: CGSize(width: 30, height: 30))
+    init(position: CGPoint, gameScene: SKScene) {
+        self.numOfLoadedMissiles = GameScene.playerMaximumMissileCapacity
+        self.gameScene = gameScene
+        super.init(texture: SKTexture(imageNamed: "Sprite/silo_\(GameScene.playerMaximumMissileCapacity).png"), color: .clear, size: CGSize(width: 30, height: 30))
         self.position = position
     }
     
@@ -32,32 +27,29 @@ public class Silo: SKSpriteNode{
     }
     
     func reload() {
-        if self.numOfLoadedMissiles < GameScene.maximumMissileCapacity {
-            self.numOfLoadedMissiles = self.numOfLoadedMissiles + 1
-            self.changeTexture()
-        }
+        self.numOfLoadedMissiles = self.numOfLoadedMissiles + 1
     }
     
     func changeTexture() {
-        let siloTexture = SKTexture(imageNamed: "Sprites/silo_\(numOfLoadedMissiles).png")
+        let siloTexture = SKTexture(imageNamed: "Sprite/silo_\(numOfLoadedMissiles).png")
         let action = SKAction.setTexture(siloTexture, resize: false)
         self.run(action)
     }
     
-    // make a new instance of friendly warhead and make it's destination to coordinate
     func shoot(coordinate: CGPoint, distance: CGFloat) {
-        guard let gameScene = scene as? GameScene else { return }
-        guard let currentTime = (scene as! GameScene).globalCurrentTime else { return }
-        self.nextLaunchTime = currentTime + Double(reloadTime)
-        let projectile = PlayerWarhead(position: self.position, distance: distance, velocity: 200, targetCoordinate: coordinate, blastRange: 5, gameScene: gameScene)
+        let playerWarhead = PlayerWarhead(position: self.position,
+                                          distance: distance,
+                                          velocity: GameScene.playerMissileVelocity,
+                                          targetCoordinate: coordinate,
+                                          blastRange: GameScene.playerMissileBlastRange,
+                                          gameScene: self.gameScene)
         
         self.numOfLoadedMissiles = self.numOfLoadedMissiles - 1
-        changeTexture()
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + reloadTime) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + GameScene.playerMissileReloadTime) {
             self.reload()
         }
         
-        gameScene.addChild(projectile)
+        self.gameScene.addChild(playerWarhead)
     }
 }
