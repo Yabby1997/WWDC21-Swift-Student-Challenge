@@ -18,18 +18,19 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     var scoreLabel: SKLabelNode?
     
     static var playerMaximumMissileCapacity: Int = 5
-    static var playerMissileReloadTime: Double = 5.0
+    static var playerMissileReloadTime: Double = 2.0
     static var playerMissileVelocity: CGFloat = 200
-    static var playerExplosionBlastRange: Int = 50
+    static var playerExplosionBlastRange: Int = 60
     static var playerExplosionDuration: Double = 1.0
     static var playerExplosionChainingDelay: Double = 0.2
     
     // MARK: - Enemy static status
-    static var enemyWarheadsPerEachRaid: Int = 4
+    static var enemyWarheadsPerEachRaid: Int = 30
     static var enemyWarheadRaidDuration: Double = 5.0
     static var enemyExplosionDuration: Double = 1.0
     
     public override func didMove(to view: SKView) {
+        print("TEST13")
         physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
         physicsBody?.friction = 0.0
         
@@ -50,19 +51,47 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
 
         switch collision {
         
-        case collisionBetweenEnemyWarheadAndExplosion:
+        case collisionBetweenEnemyWarheadAndPlayerExplosion:
             let enemyWarhead = (contact.bodyA.categoryBitMask == enemyWarheadCategory ? nodeA : nodeB) as! EnemyWarhead
             enemyWarhead.removeFromParent()
             let blastRange = enemyWarhead.blastRange
             
-            self.playerScore = self.playerScore + 1
+            self.playerScore = self.playerScore + blastRange
             
             DispatchQueue.main.asyncAfter(deadline: .now() + GameScene.playerExplosionChainingDelay) {
-                let newExplosion = EnemyExplosion(position: contact.contactPoint, blastRange: blastRange)
+                let newExplosion = EnemyExplosion(position: contact.contactPoint, blastRange: blastRange, chainingCombo: 1)
                 self.addChild(newExplosion)
             }
             
-        case collisionBetweenPlayerSiloAndExplosion:
+        case collisionBetweenEnemyWarheadAndEnemyExplosion:
+            let enemyWarhead = (contact.bodyA.categoryBitMask == enemyWarheadCategory ? nodeA : nodeB) as! EnemyWarhead
+            let enemyExplosion = (contact.bodyA.categoryBitMask == enemyExplosionCategory ? nodeA : nodeB) as! EnemyExplosion
+            enemyWarhead.removeFromParent()
+            let blastRange = enemyWarhead.blastRange
+            let combo = enemyExplosion.chainingCombo
+            
+            self.playerScore = self.playerScore + (blastRange * combo * 10)
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + GameScene.playerExplosionChainingDelay) {
+                let newExplosion = EnemyExplosion(position: contact.contactPoint, blastRange: blastRange, chainingCombo: combo == 0 ? 0 : combo + 1)
+                self.addChild(newExplosion)
+                
+                if combo != 0 {
+                    let comboLabel = SKLabelNode(fontNamed: "PressStart2P")
+                    comboLabel.text = "\(combo) COMBO"
+                    comboLabel.fontSize = 12
+                    comboLabel.fontColor = SKColor.yellow
+                    comboLabel.position = CGPoint(x: contact.contactPoint.x, y: contact.contactPoint.y + 10)
+                    comboLabel.zPosition = 1
+                    self.addChild(comboLabel)
+                    
+                    let wait = SKAction.wait(forDuration: 2)
+                    let remove = SKAction.run { comboLabel.removeFromParent() }
+                    self.run(SKAction.sequence([wait, remove]))
+                }
+            }
+            
+        case collisionBetweenPlayerSiloAndEnemyExplosion, collisionBetweenPlayerSiloAndPlayerExplosion:
             let silo = (contact.bodyA.categoryBitMask == playerSiloCategory ? nodeA : nodeB) as! Silo
             removeSiloFromGameScene(targetSilo: silo)
             silo.removeFromParent()
@@ -126,7 +155,9 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             let to = CGPoint(x: toX, y: 25)
             
             let distance = getDistance(from: from, to: to)
-            let enemyWarhead = EnemyWarhead(position: from, distance: distance, velocity: 75, targetCoordinate: to, blastRange: 30, gameScene: self)
+            let velocity = CGFloat.random(in: 50...125)
+            let blastRange = [30, 40, 50, 60].randomElement()!
+            let enemyWarhead = EnemyWarhead(position: from, distance: distance, velocity: velocity, targetCoordinate: to, blastRange: blastRange, gameScene: self)
             addChild(enemyWarhead)
         }
     }

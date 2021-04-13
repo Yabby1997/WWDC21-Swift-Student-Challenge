@@ -1,8 +1,11 @@
 import Foundation
 
-let explosionCategory: UInt32 = 0x1 << 0
-let enemyWarheadCategory: UInt32 = 0x1 << 1
-let playerSiloCategory: UInt32 = 0x1 << 2
+let playerExplosionCategory: UInt32 = 0x1 << 0
+let enemyExplosionCategory: UInt32 = 0x1 << 1
+let enemyWarheadCategory: UInt32 = 0x1 << 2
+let playerSiloCategory: UInt32 = 0x1 << 3
 
-let collisionBetweenEnemyWarheadAndExplosion = enemyWarheadCategory | explosionCategory
-let collisionBetweenPlayerSiloAndExplosion = playerSiloCategory | explosionCategory
+let collisionBetweenEnemyWarheadAndPlayerExplosion = enemyWarheadCategory | playerExplosionCategory
+let collisionBetweenEnemyWarheadAndEnemyExplosion = enemyWarheadCategory | enemyExplosionCategory
+let collisionBetweenPlayerSiloAndEnemyExplosion = playerSiloCategory | enemyExplosionCategory
+let collisionBetweenPlayerSiloAndPlayerExplosion = playerSiloCategory | playerExplosionCategory

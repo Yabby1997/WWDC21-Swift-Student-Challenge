@@ -6,6 +6,8 @@ public class PlayerExplosion: Explosion {
     override init(position: CGPoint, blastRange: Int) {
         super.init(position: position, blastRange: blastRange)
         
+        self.physicsBody?.categoryBitMask = playerExplosionCategory
+        
         guard let explosionSound = explosionSound else { return }
         explosionSound.play()
         
