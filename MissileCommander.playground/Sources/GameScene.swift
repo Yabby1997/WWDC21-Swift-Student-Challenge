@@ -2,14 +2,15 @@
 import SpriteKit
 
 public class GameScene: SKScene, SKPhysicsContactDelegate {
-    public var siloLocation = [1, 10, 19]
-    public var silos: [Silo] = []
-    public var cityLocation = [1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13]
-    public var cities: [City] = []
-    public var raidClock: Timer!
+    private var siloLocation: [Int] = [1, 10, 19]
+    private var silos: [Silo] = []
+    private var cityLocation: [Int] = [] //[1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13]
+    private var cities: [City] = []
+    private var raidClock: Timer!
+    private var explosionChainingDelay: Double = 0.2
     
     // MARK: - Player static status
-    var playerScore: Int = 0 {
+    private var playerScore: UInt64 = 0 {
         didSet {
             scoreLabel?.text = "\(playerScore)"
         }
@@ -22,23 +23,24 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     static var playerMissileVelocity: CGFloat = 200
     static var playerExplosionBlastRange: Int = 60
     static var playerExplosionDuration: Double = 1.0
-    static var playerExplosionChainingDelay: Double = 0.2
     
     // MARK: - Enemy static status
     static var enemyWarheadsPerEachRaid: Int = 30
-    static var enemyWarheadRaidDuration: Double = 5.0
+    static var enemyWarheadRaidDuration: Double = 10.0
     static var enemyExplosionDuration: Double = 1.0
     
     public override func didMove(to view: SKView) {
-        print("TEST13")
+        print("TEST18")
         physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
         physicsBody?.friction = 0.0
         
         self.backgroundColor = .black
         self.physicsWorld.contactDelegate = self
         
+        loadFont(font: "PressStart2P-vaV7")
         generateScoreLabel()
         generateSilos()
+        
         raid(timeInterval: GameScene.enemyWarheadRaidDuration)
     }
     
@@ -55,10 +57,9 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             let enemyWarhead = (contact.bodyA.categoryBitMask == enemyWarheadCategory ? nodeA : nodeB) as! EnemyWarhead
             enemyWarhead.removeFromParent()
             let blastRange = enemyWarhead.blastRange
+            self.playerScore = self.playerScore + UInt64(blastRange)
             
-            self.playerScore = self.playerScore + blastRange
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + GameScene.playerExplosionChainingDelay) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + explosionChainingDelay) {
                 let newExplosion = EnemyExplosion(position: contact.contactPoint, blastRange: blastRange, chainingCombo: 1)
                 self.addChild(newExplosion)
             }
@@ -69,26 +70,12 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             enemyWarhead.removeFromParent()
             let blastRange = enemyWarhead.blastRange
             let combo = enemyExplosion.chainingCombo
+            self.playerScore = self.playerScore + UInt64(blastRange * (combo * 10) * (combo < 5 ? 1 : 10))
             
-            self.playerScore = self.playerScore + (blastRange * combo * 10)
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + GameScene.playerExplosionChainingDelay) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + explosionChainingDelay) {
                 let newExplosion = EnemyExplosion(position: contact.contactPoint, blastRange: blastRange, chainingCombo: combo == 0 ? 0 : combo + 1)
+                self.generateComboLabel(combo: combo, position: contact.contactPoint, range: blastRange)
                 self.addChild(newExplosion)
-                
-                if combo != 0 {
-                    let comboLabel = SKLabelNode(fontNamed: "PressStart2P")
-                    comboLabel.text = "\(combo) COMBO"
-                    comboLabel.fontSize = 12
-                    comboLabel.fontColor = SKColor.yellow
-                    comboLabel.position = CGPoint(x: contact.contactPoint.x, y: contact.contactPoint.y + 10)
-                    comboLabel.zPosition = 1
-                    self.addChild(comboLabel)
-                    
-                    let wait = SKAction.wait(forDuration: 2)
-                    let remove = SKAction.run { comboLabel.removeFromParent() }
-                    self.run(SKAction.sequence([wait, remove]))
-                }
             }
             
         case collisionBetweenPlayerSiloAndEnemyExplosion, collisionBetweenPlayerSiloAndPlayerExplosion:
@@ -146,6 +133,22 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     // MARK: - Generating sprites
+    func generateComboLabel(combo: Int, position: CGPoint, range: Int) {
+        if combo != 0 {
+            let comboLabel = SKLabelNode(fontNamed: "PressStart2P")
+            comboLabel.text = combo == 1 ? "\(combo) COMBO" : "\(combo) COMBOS"
+            comboLabel.fontSize = 12
+            comboLabel.fontColor = combo < 5 ? SKColor.yellow : SKColor.red
+            comboLabel.position = CGPoint(x: position.x, y: position.y + CGFloat(range / 2))
+            comboLabel.zPosition = 1
+            self.addChild(comboLabel)
+            
+            let wait = SKAction.wait(forDuration: 2)
+            let remove = SKAction.run { comboLabel.removeFromParent() }
+            self.run(SKAction.sequence([wait, remove]))
+        }
+    }
+    
     @objc func generateEnemyWarhead() {
         let candidateLocation = cityLocation + siloLocation
         for _ in 1...GameScene.enemyWarheadsPerEachRaid {
@@ -163,10 +166,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func generateScoreLabel() {
-        let fontURL = Bundle.main.url(forResource: "Font/PressStart2P-vaV7", withExtension: "ttf")
-        CTFontManagerRegisterFontsForURL(fontURL! as CFURL, CTFontManagerScope.process, nil)
         self.scoreLabel = SKLabelNode(fontNamed: "PressStart2P")
-        
         self.scoreLabel?.text = "0"
         self.scoreLabel?.fontSize = 20
         self.scoreLabel?.fontColor = SKColor.white

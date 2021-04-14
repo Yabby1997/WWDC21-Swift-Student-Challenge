@@ -1,4 +1,5 @@
 
+import SpriteKit
 import AVFoundation
 
 func soundPlayer(sound: String) -> AVAudioPlayer? {
@@ -19,4 +20,9 @@ func getWarheadSize(blastRange: Int) -> Int {
     } else {
         return 7
     }
+}
+
+func loadFont(font: String) {
+    let fontURL = Bundle.main.url(forResource: "Font/\(font)", withExtension: "ttf")
+    CTFontManagerRegisterFontsForURL(fontURL! as CFURL, CTFontManagerScope.process, nil)
 }
