@@ -6,6 +6,17 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     private var silos: [Silo] = []
     private var cityLocation: [Int] = [] //[1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13]
     private var cities: [City] = []
+    private var randomTargetLocation: Int? {
+        let candidates = cityLocation + siloLocation
+        if candidates.isEmpty {
+            self.gameOver()
+            return nil
+        } else {
+            return candidates.randomElement()
+        }
+    }
+    
+    private var isGameOver: Bool = false
     private var raidClock: Timer!
     private var explosionChainingDelay: Double = 0.2
     
@@ -30,7 +41,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     static var enemyExplosionDuration: Double = 1.0
     
     public override func didMove(to view: SKView) {
-        print("TEST18")
+        print("TEST21")
         physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
         physicsBody?.friction = 0.0
         
@@ -89,8 +100,10 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func raid(timeInterval: TimeInterval) {
-        raidClock?.invalidate()
-        raidClock = Timer.scheduledTimer(timeInterval: TimeInterval(timeInterval), target: self, selector: #selector(generateEnemyWarhead), userInfo: nil, repeats: true)
+        if !isGameOver {
+            raidClock?.invalidate()
+            raidClock = Timer.scheduledTimer(timeInterval: TimeInterval(timeInterval), target: self, selector: #selector(generateEnemyWarhead), userInfo: nil, repeats: true)
+        }
     }
     
     // MARK: - Player click input
@@ -132,7 +145,23 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         return sqrt(xDistance * xDistance + yDistance * yDistance)
     }
     
+    func gameOver() {
+        self.isGameOver = true
+        self.raidClock.invalidate()
+        generateGameOverLabel()
+    }
+    
     // MARK: - Generating sprites
+    func generateGameOverLabel() {
+        let gameOverLabel = SKLabelNode(fontNamed: "PressStart2P")
+        gameOverLabel.text = "GAME OVER"
+        gameOverLabel.fontSize = 30
+        gameOverLabel.fontColor = .white
+        gameOverLabel.position = CGPoint(x: frame.midX, y: frame.midY)
+        gameOverLabel.zPosition = 1
+        self.addChild(gameOverLabel)
+    }
+    
     func generateComboLabel(combo: Int, position: CGPoint, range: Int) {
         if combo != 0 {
             let comboLabel = SKLabelNode(fontNamed: "PressStart2P")
@@ -150,12 +179,16 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     @objc func generateEnemyWarhead() {
-        let candidateLocation = cityLocation + siloLocation
         for _ in 1...GameScene.enemyWarheadsPerEachRaid {
-            let fromX = Int.random(in: 1...600)
-            let toX = candidateLocation.randomElement()! * 30
-            let from = CGPoint(x: fromX, y: 500)
+            guard let randomTargetX = self.randomTargetLocation else {
+                print("no targets are available")
+                return
+            }
+            
+            let toX = randomTargetX * 30
             let to = CGPoint(x: toX, y: 25)
+            let fromX = Int.random(in: 1...600)
+            let from = CGPoint(x: fromX, y: 500)
             
             let distance = getDistance(from: from, to: to)
             let velocity = CGFloat.random(in: 50...125)
