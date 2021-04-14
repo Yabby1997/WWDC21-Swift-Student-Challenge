@@ -196,6 +196,22 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             let enemyWarhead = EnemyWarhead(position: from, distance: distance, velocity: velocity, targetCoordinate: to, blastRange: blastRange, gameScene: self)
             addChild(enemyWarhead)
         }
+        
+        guard let randomTargetX = self.randomTargetLocation else {
+            print("no targets are available")
+            return
+        }
+        
+        let toX = randomTargetX * 30
+        let to = CGPoint(x: toX, y: 25)
+        let fromX = Int.random(in: 1...600)
+        let from = CGPoint(x: fromX, y: 500)
+        
+        let distance = getDistance(from: from, to: to)
+        let velocity = CGFloat.random(in: 50...125)
+        let blastRange = 300
+        let enemyWarhead = EnemyWarhead(position: from, distance: distance, velocity: velocity, targetCoordinate: to, blastRange: blastRange, gameScene: self)
+        addChild(enemyWarhead)
     }
     
     func generateScoreLabel() {
