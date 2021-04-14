@@ -24,6 +24,12 @@ func getWarheadSize(blastRange: Int) -> Int {
     }
 }
 
+func getDistance(from: CGPoint, to: CGPoint) -> CGFloat {
+    let xDistance = from.x - to.x
+    let yDistance = from.y - to.y
+    return sqrt(xDistance * xDistance + yDistance * yDistance)
+}
+
 func loadFont(font: String) {
     let fontURL = Bundle.main.url(forResource: "Font/\(font)", withExtension: "ttf")
     CTFontManagerRegisterFontsForURL(fontURL! as CFURL, CTFontManagerScope.process, nil)

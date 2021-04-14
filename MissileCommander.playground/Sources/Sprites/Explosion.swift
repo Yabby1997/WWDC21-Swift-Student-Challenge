@@ -7,7 +7,7 @@ public class Explosion: SKSpriteNode {
         
         self.physicsBody = SKPhysicsBody(circleOfRadius: self.size.width / 2)
         self.physicsBody?.affectedByGravity = false
-        self.physicsBody?.contactTestBitMask = enemyWarheadCategory | playerSiloCategory | playerCityCategory
+        self.physicsBody?.contactTestBitMask = enemyWarheadCategory | playerSiloCategory | playerCityCategory | enemyBomberCategory
         self.physicsBody?.collisionBitMask = 0
         self.physicsBody?.usesPreciseCollisionDetection = true
     }

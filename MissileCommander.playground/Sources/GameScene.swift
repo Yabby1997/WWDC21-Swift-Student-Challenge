@@ -53,7 +53,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     static var enemyExplosionDuration: Double = 1.0
     
     public override func didMove(to view: SKView) {
-        print("TEST24")
+        print("TEST32")
         physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
         physicsBody?.friction = 0.0
         
@@ -64,6 +64,13 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         generateScoreLabel()
         generateSilos()
         generateCities()
+        
+        let bomber = Bomber(yPosition: CGFloat(400), fromRight: false, bombingDuration: 0.3, blastRange: 60, gameScene: self)
+        addChild(bomber)
+        
+        let bomber2 = Bomber(yPosition: CGFloat(300), fromRight: true, bombingDuration: 0.3, blastRange: 60, gameScene: self)
+        addChild(bomber2)
+        
         
         raid(timeInterval: GameScene.enemyWarheadRaidDuration)
     }
@@ -93,6 +100,32 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             let enemyExplosion = (contact.bodyA.categoryBitMask == enemyExplosionCategory ? nodeA : nodeB) as! EnemyExplosion
             enemyWarhead.removeFromParent()
             let blastRange = enemyWarhead.blastRange
+            let combo = enemyExplosion.chainingCombo
+            self.playerScore = self.playerScore + UInt64(blastRange * (combo * 10) * (combo < 5 ? 1 : 10))
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + explosionChainingDelay) {
+                let newExplosion = EnemyExplosion(position: contact.contactPoint, blastRange: blastRange, chainingCombo: combo == 0 ? 0 : combo + 1)
+                self.generateComboLabel(combo: combo, position: contact.contactPoint, range: blastRange)
+                self.addChild(newExplosion)
+            }
+            
+            
+        case collisionBetweenEnemyBomberAndPlayerExplosion:
+            let bomber = (contact.bodyA.categoryBitMask == enemyBomberCategory ? nodeA : nodeB) as! Bomber
+            bomber.removeFromParent()
+            let blastRange = 150
+            self.playerScore = self.playerScore + UInt64(blastRange)
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + explosionChainingDelay) {
+                let newExplosion = EnemyExplosion(position: contact.contactPoint, blastRange: blastRange, chainingCombo: 1)
+                self.addChild(newExplosion)
+            }
+            
+        case collisionBetweenEnemyBomberAndEnemyExplosion:
+            let bomber = (contact.bodyA.categoryBitMask == enemyBomberCategory ? nodeA : nodeB) as! Bomber
+            let enemyExplosion = (contact.bodyA.categoryBitMask == enemyExplosionCategory ? nodeA : nodeB) as! EnemyExplosion
+            bomber.removeFromParent()
+            let blastRange = 150
             let combo = enemyExplosion.chainingCombo
             self.playerScore = self.playerScore + UInt64(blastRange * (combo * 10) * (combo < 5 ? 1 : 10))
             
@@ -161,12 +194,6 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         guard let targetIndex = self.cities.firstIndex(of: targetCity) else { return }
         self.cities.remove(at: targetIndex)
         self.cityLocation.remove(at: targetIndex)
-    }
-    
-    func getDistance(from: CGPoint, to: CGPoint) -> CGFloat {
-        let xDistance = from.x - to.x
-        let yDistance = from.y - to.y
-        return sqrt(xDistance * xDistance + yDistance * yDistance)
     }
     
     func gameOver() {
