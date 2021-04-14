@@ -29,8 +29,22 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     private var isGameOver: Bool = false
-    private var raidClock: Timer!
     private var explosionChainingDelay: Double = 0.2
+    
+    private var isWarheadRaidOn: Bool = true
+    private var warheadRaidTimer: Timer!
+    private var warheadRaidInterval: Double = 10.0
+    private var warheadPerRaid: Int = 4
+    
+    private var isBomberRaidOn: Bool = false
+    private var bomberRaidTimer: Timer!
+    private var bomberRaidInterval: Double = 15.0
+    private var bomberPerRaid: Int = 1
+    
+    private var isTzarRaidOn: Bool = false
+    private var tzarRaidTimer: Timer!
+    private var tzarRaidInterval: Double = 18.0
+    private var tzarPerRaid: Int = 1
     
     // MARK: - Player static status
     private var playerScore: UInt64 = 0 {
@@ -41,19 +55,18 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     
     var scoreLabel: SKLabelNode?
     
-    static var playerMaximumMissileCapacity: Int = 5
-    static var playerMissileReloadTime: Double = 2.0
+    static var playerMaximumMissileCapacity: Int = 2
+    static var playerMissileReloadTime: Double = 5.0
     static var playerMissileVelocity: CGFloat = 200
-    static var playerExplosionBlastRange: Int = 60
+    static var playerExplosionBlastRange: Int = 30
     static var playerExplosionDuration: Double = 1.0
     
     // MARK: - Enemy static status
     static var enemyWarheadsPerEachRaid: Int = 30
-    static var enemyWarheadRaidDuration: Double = 10.0
     static var enemyExplosionDuration: Double = 1.0
     
     public override func didMove(to view: SKView) {
-        print("TEST32")
+        print("TEST33")
         physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
         physicsBody?.friction = 0.0
         
@@ -65,14 +78,9 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         generateSilos()
         generateCities()
         
-        let bomber = Bomber(yPosition: CGFloat(400), fromRight: false, bombingDuration: 0.3, blastRange: 60, gameScene: self)
-        addChild(bomber)
-        
-        let bomber2 = Bomber(yPosition: CGFloat(300), fromRight: true, bombingDuration: 0.3, blastRange: 60, gameScene: self)
-        addChild(bomber2)
-        
-        
-        raid(timeInterval: GameScene.enemyWarheadRaidDuration)
+        warheadRaid(timeInterval: warheadRaidInterval)
+        bomberRaid(timeInterval: bomberRaidInterval)
+        tzarRaid(timeInterval: tzarRaidInterval)
     }
     
     // MARK: - Collision
@@ -150,12 +158,28 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
-    func raid(timeInterval: TimeInterval) {
-        if !isGameOver {
-            raidClock?.invalidate()
-            raidClock = Timer.scheduledTimer(timeInterval: TimeInterval(timeInterval), target: self, selector: #selector(generateEnemyWarhead), userInfo: nil, repeats: true)
+    // MARK: - Raid
+    func warheadRaid(timeInterval: TimeInterval) {
+        if !isGameOver && isWarheadRaidOn {
+            warheadRaidTimer?.invalidate()
+            warheadRaidTimer = Timer.scheduledTimer(timeInterval: TimeInterval(timeInterval), target: self, selector: #selector(generateEnemyWarhead), userInfo: nil, repeats: true)
         }
     }
+    
+    func bomberRaid(timeInterval: TimeInterval) {
+        if !isGameOver && isBomberRaidOn {
+            bomberRaidTimer?.invalidate()
+            bomberRaidTimer = Timer.scheduledTimer(timeInterval: TimeInterval(timeInterval), target: self, selector: #selector(generateEnemyBomber), userInfo: nil, repeats: true)
+        }
+    }
+    
+    func tzarRaid(timeInterval: TimeInterval) {
+        if !isGameOver && isTzarRaidOn {
+            tzarRaidTimer?.invalidate()
+            tzarRaidTimer = Timer.scheduledTimer(timeInterval: TimeInterval(timeInterval), target: self, selector: #selector(generateEnemyTzar), userInfo: nil, repeats: true)
+        }
+    }
+    
     
     // MARK: - Player click input
     public override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -198,7 +222,9 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func gameOver() {
         self.isGameOver = true
-        self.raidClock.invalidate()
+        if isWarheadRaidOn { self.warheadRaidTimer.invalidate() }
+        if isBomberRaidOn { self.bomberRaidTimer.invalidate() }
+        if isTzarRaidOn { self.tzarRaidTimer.invalidate() }
         generateGameOverLabel()
     }
     
@@ -232,7 +258,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     @objc func generateEnemyWarhead() {
-        for _ in 1...GameScene.enemyWarheadsPerEachRaid {
+        for _ in 1...warheadPerRaid {
             guard let randomTargetX = self.randomTargetLocation else {
                 print("no targets are available")
                 return
@@ -249,22 +275,36 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             let enemyWarhead = EnemyWarhead(position: from, distance: distance, velocity: velocity, targetCoordinate: to, blastRange: blastRange, gameScene: self)
             addChild(enemyWarhead)
         }
-        
-        guard let randomTargetX = self.randomTargetLocation else {
-            print("no targets are available")
-            return
+    }
+    
+    @objc func generateEnemyBomber() {
+        for _ in 1...bomberPerRaid {
+            let fromY = Int.random(in: 400...500)
+            let bombingDuration = Double.random(in: 0.2...0.5)
+            let blastRange = [30, 40, 50, 60].randomElement()!
+            let bomber = Bomber(yPosition: CGFloat(fromY), fromRight: Bool.random(), bombingDuration: bombingDuration, blastRange: blastRange, gameScene: self)
+            addChild(bomber)
         }
-        
-        let toX = randomTargetX * 30
-        let to = CGPoint(x: toX, y: 25)
-        let fromX = Int.random(in: 1...600)
-        let from = CGPoint(x: fromX, y: 500)
-        
-        let distance = getDistance(from: from, to: to)
-        let velocity = CGFloat.random(in: 50...125)
-        let blastRange = 300
-        let enemyWarhead = EnemyWarhead(position: from, distance: distance, velocity: velocity, targetCoordinate: to, blastRange: blastRange, gameScene: self)
-        addChild(enemyWarhead)
+    }
+    
+    @objc func generateEnemyTzar() {
+        for _ in 1...tzarPerRaid {
+            guard let randomTargetX = self.randomTargetLocation else {
+                print("no targets are available")
+                return
+            }
+            
+            let toX = randomTargetX * 30
+            let to = CGPoint(x: toX, y: 25)
+            let fromX = Int.random(in: 1...600)
+            let from = CGPoint(x: fromX, y: 500)
+            
+            let distance = getDistance(from: from, to: to)
+            let velocity = CGFloat.random(in: 50...125)
+            let blastRange = 300
+            let enemyWarhead = EnemyWarhead(position: from, distance: distance, velocity: velocity, targetCoordinate: to, blastRange: blastRange, gameScene: self)
+            addChild(enemyWarhead)
+        }
     }
     
     func generateScoreLabel() {
