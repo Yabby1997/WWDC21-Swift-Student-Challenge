@@ -2,14 +2,26 @@
 import SpriteKit
 
 public class GameScene: SKScene, SKPhysicsContactDelegate {
-    private var siloLocation: [Int] = [1, 10, 19]
+    private var siloLocation: [Int] = [2, 10, 18] {
+        didSet {
+            if siloLocation.isEmpty {
+                self.gameOver()
+            }
+        }
+    }
     private var silos: [Silo] = []
-    private var cityLocation: [Int] = [] //[1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13]
+    private var cityLocation: [Int] = [4, 6, 8, 12, 14, 16] {
+        didSet {
+            if cityLocation.isEmpty {
+                self.gameOver()
+            }
+        }
+    }
+    
     private var cities: [City] = []
     private var randomTargetLocation: Int? {
         let candidates = cityLocation + siloLocation
         if candidates.isEmpty {
-            self.gameOver()
             return nil
         } else {
             return candidates.randomElement()
@@ -41,7 +53,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     static var enemyExplosionDuration: Double = 1.0
     
     public override func didMove(to view: SKView) {
-        print("TEST21")
+        print("TEST24")
         physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
         physicsBody?.friction = 0.0
         
@@ -51,6 +63,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         loadFont(font: "PressStart2P-vaV7")
         generateScoreLabel()
         generateSilos()
+        generateCities()
         
         raid(timeInterval: GameScene.enemyWarheadRaidDuration)
     }
@@ -93,6 +106,11 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             let silo = (contact.bodyA.categoryBitMask == playerSiloCategory ? nodeA : nodeB) as! Silo
             removeSiloFromGameScene(targetSilo: silo)
             silo.removeFromParent()
+            
+        case collisionBetweenPlayerCityAndEnemyExplosion, collisionBetweenPlayerCityAndPlayerExplosion:
+            let city = (contact.bodyA.categoryBitMask == playerCityCategory ? nodeA : nodeB) as! City
+            removeCityFromGameScene(targetCity: city)
+            city.removeFromParent()
             
         default:
             print("missing collision type")
@@ -139,6 +157,12 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         self.siloLocation.remove(at: targetIndex)
     }
     
+    func removeCityFromGameScene(targetCity: City) {
+        guard let targetIndex = self.cities.firstIndex(of: targetCity) else { return }
+        self.cities.remove(at: targetIndex)
+        self.cityLocation.remove(at: targetIndex)
+    }
+    
     func getDistance(from: CGPoint, to: CGPoint) -> CGFloat {
         let xDistance = from.x - to.x
         let yDistance = from.y - to.y
@@ -159,7 +183,9 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         gameOverLabel.fontColor = .white
         gameOverLabel.position = CGPoint(x: frame.midX, y: frame.midY)
         gameOverLabel.zPosition = 1
-        self.addChild(gameOverLabel)
+        let wait = SKAction.wait(forDuration: 2)
+        let show = SKAction.run { self.addChild(gameOverLabel) }
+        self.run(SKAction.sequence([wait, show]))
     }
     
     func generateComboLabel(combo: Int, position: CGPoint, range: Int) {
@@ -238,12 +264,13 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func generateCities() {
         for i in cityLocation {
-            let x = 10 + i * 20
+            let x = i * 30
             let y = 25
             let position = CGPoint(x: x, y: y)
             
             let city = City(position: position)
             cities.append(city)
+            
             addChild(city)
         }
     }
