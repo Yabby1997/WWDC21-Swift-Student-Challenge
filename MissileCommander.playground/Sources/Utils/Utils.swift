@@ -15,9 +15,9 @@ func soundPlayer(sound: String) -> AVAudioPlayer? {
 }
 
 func getWarheadSize(blastRange: Int) -> Int {
-    if blastRange <= 40 {
+    if blastRange <= 50 {
         return 5
-    } else if blastRange <= 60 {
+    } else if blastRange <= 150 {
         return 7
     } else {
         return 11

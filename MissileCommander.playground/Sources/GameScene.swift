@@ -2,6 +2,11 @@
 import SpriteKit
 
 public class GameScene: SKScene, SKPhysicsContactDelegate {
+    private var time: Int = 3666 {
+        didSet {
+            setTimeLabel(alwaysDisplayColon: false)
+        }
+    }
     private var siloLocation: [Int] = [2, 10, 18] {
         didSet {
             if siloLocation.isEmpty {
@@ -33,7 +38,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     
     private var isWarheadRaidOn: Bool = true
     private var warheadRaidTimer: Timer!
-    private var warheadRaidInterval: Double = 10.0
+    private var warheadRaidInterval: Double = 5.0
     private var warheadPerRaid: Int = 4
     
     private var isBomberRaidOn: Bool = false
@@ -54,19 +59,19 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     var scoreLabel: SKLabelNode?
+    var timeLabel: SKLabelNode?
     
-    static var playerMaximumMissileCapacity: Int = 2
-    static var playerMissileReloadTime: Double = 5.0
+    static var playerMaximumMissileCapacity: Int = 3
+    static var playerMissileReloadTime: Double = 3.0
     static var playerMissileVelocity: CGFloat = 200
-    static var playerExplosionBlastRange: Int = 30
+    static var playerExplosionBlastRange: Int = 40
     static var playerExplosionDuration: Double = 1.0
     
     // MARK: - Enemy static status
-    static var enemyWarheadsPerEachRaid: Int = 30
     static var enemyExplosionDuration: Double = 1.0
     
     public override func didMove(to view: SKView) {
-        print("TEST33")
+        print("TEST36")
         physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
         physicsBody?.friction = 0.0
         
@@ -74,6 +79,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         self.physicsWorld.contactDelegate = self
         
         loadFont(font: "PressStart2P-vaV7")
+        generateTimeLabel()
         generateScoreLabel()
         generateSilos()
         generateCities()
@@ -220,8 +226,21 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         self.cityLocation.remove(at: targetIndex)
     }
     
+    func setTimeLabel(alwaysDisplayColon: Bool) {
+        let minutes = Int(self.time / 60)
+        let seconds = Int(self.time - minutes * 60)
+        
+        if minutes > 0 {
+            self.timeLabel?.text = (seconds % 2 == 0 || alwaysDisplayColon) ? String(format: "%02d:%02d", minutes, seconds) : String(format: "%02d %02d", minutes, seconds)
+        } else {
+            self.timeLabel?.text = String(format: "%02d", seconds)
+        }
+    }
+    
     func gameOver() {
         self.isGameOver = true
+        self.removeAction(forKey: "countSeconds")
+        self.setTimeLabel(alwaysDisplayColon: true)
         if isWarheadRaidOn { self.warheadRaidTimer.invalidate() }
         if isBomberRaidOn { self.bomberRaidTimer.invalidate() }
         if isTzarRaidOn { self.tzarRaidTimer.invalidate() }
@@ -270,8 +289,8 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             let from = CGPoint(x: fromX, y: 500)
             
             let distance = getDistance(from: from, to: to)
-            let velocity = CGFloat.random(in: 50...125)
-            let blastRange = [30, 40, 50, 60].randomElement()!
+            let velocity = CGFloat([50, 75, 100].randomElement()!)
+            let blastRange =  [40, 50, 60].randomElement()!
             let enemyWarhead = EnemyWarhead(position: from, distance: distance, velocity: velocity, targetCoordinate: to, blastRange: blastRange, gameScene: self)
             addChild(enemyWarhead)
         }
@@ -281,7 +300,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         for _ in 1...bomberPerRaid {
             let fromY = Int.random(in: 400...500)
             let bombingDuration = Double.random(in: 0.2...0.5)
-            let blastRange = [30, 40, 50, 60].randomElement()!
+            let blastRange = [40, 50, 60].randomElement()!
             let bomber = Bomber(yPosition: CGFloat(fromY), fromRight: Bool.random(), bombingDuration: bombingDuration, blastRange: blastRange, gameScene: self)
             addChild(bomber)
         }
@@ -312,8 +331,22 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         self.scoreLabel?.text = "0"
         self.scoreLabel?.fontSize = 20
         self.scoreLabel?.fontColor = SKColor.white
-        self.scoreLabel?.position = CGPoint(x: frame.midX, y: 470)
+        self.scoreLabel?.position = CGPoint(x: frame.midX, y: 440)
         self.addChild(scoreLabel!)
+    }
+    
+    func generateTimeLabel() {
+        self.timeLabel = SKLabelNode(fontNamed: "PressStart2P")
+        self.timeLabel?.text = "0"
+        self.timeLabel?.fontSize = 20
+        self.timeLabel?.fontColor = SKColor.white
+        self.timeLabel?.position = CGPoint(x: frame.midX, y: 470)
+        self.addChild(timeLabel!)
+        let countOneSecond = SKAction.run {
+            self.time = self.time + 1
+        }
+        let waitOneSecond = SKAction.wait(forDuration: 1)
+        self.run(SKAction.repeatForever(SKAction.sequence([waitOneSecond, countOneSecond])), withKey: "countSeconds")
     }
     
     func generateSilos() {
