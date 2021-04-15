@@ -258,8 +258,8 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             let explosion = (contact.bodyA.categoryBitMask == playerExplosionCategory ? nodeA : nodeB) as! PlayerExplosion
             let blastRange = explosion.blastRange
             
-            self.upgradePlayerMissileCapacity()
             self.generateItemLabel(upgradable: self.isPlayerMissileCapacityUpgradable, itemName: "Ammunition", color: SKColor.yellow, position: contact.contactPoint, range: blastRange)
+            self.upgradePlayerMissileCapacity()
             ammunition.removeFromParent()
             
         case collisionBetweenBlastItemAndPlayerExplosion:
@@ -267,8 +267,8 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             let explosion = (contact.bodyA.categoryBitMask == playerExplosionCategory ? nodeA : nodeB) as! PlayerExplosion
             let blastRange = explosion.blastRange
             
-            self.upgradePlayerExplosionBlastRange()
             self.generateItemLabel(upgradable: self.isPlayerExplosionBlastRangeUpgradable, itemName: "Blast", color: SKColor.red, position: contact.contactPoint, range: blastRange)
+            self.upgradePlayerExplosionBlastRange()
             blast.removeFromParent()
             
         case collisionBetweenDurationItemAndPlayerExplosion:
@@ -276,8 +276,8 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             let explosion = (contact.bodyA.categoryBitMask == playerExplosionCategory ? nodeA : nodeB) as! PlayerExplosion
             let blastRange = explosion.blastRange
             
-            self.upgradeGlobalExplosionDuration()
             self.generateItemLabel(upgradable: self.isGlobalExplosionDurationUpgradable, itemName: "Duration", color: SKColor.orange, position: contact.contactPoint, range: blastRange)
+            self.upgradeGlobalExplosionDuration()
             duration.removeFromParent()
             
         case collisionBetweenReloadItemAndPlayerExplosion:
@@ -285,8 +285,8 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             let explosion = (contact.bodyA.categoryBitMask == playerExplosionCategory ? nodeA : nodeB) as! PlayerExplosion
             let blastRange = explosion.blastRange
             
-            self.upgradePlayerMissileReloadTime()
             self.generateItemLabel(upgradable: self.isPlayerMissileReloadTimeUpgradable, itemName: "Reload", color: SKColor.blue, position: contact.contactPoint, range: blastRange)
+            self.upgradePlayerMissileReloadTime()
             reload.removeFromParent()
             
         case collisionBetweenSpeedItemAndPlayerExplosion:
@@ -294,8 +294,8 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             let explosion = (contact.bodyA.categoryBitMask == playerExplosionCategory ? nodeA : nodeB) as! PlayerExplosion
             let blastRange = explosion.blastRange
             
-            self.upgradePlayerMissileVelocity()
             self.generateItemLabel(upgradable: self.isPlayerMissileVelocityUpgradable, itemName: "Speed", color: SKColor.green, position: contact.contactPoint, range: blastRange)
+            self.upgradePlayerMissileVelocity()
             speed.removeFromParent()
             
         default:
