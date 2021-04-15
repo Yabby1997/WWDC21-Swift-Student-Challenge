@@ -66,15 +66,71 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     private var tzarPerRaid: Int = 1
     
     // MARK: - Player Status
-    static var playerMaximumMissileCapacity: Int = 3
-    static var playerMissileReloadTime: Double = 5.0
-    static var playerMissileVelocity: CGFloat = 150
-    static var playerExplosionBlastRange: Int = 40
-    static var explosionDuration: Double = 0.5
+    static let itemScore: UInt64 = 10000
+    
+    static let initialPlayerMissileCapacity: Int = 3
+    static let initialPlayerMissileReloadTime: Double = 5.0
+    static let initialPlayerMissileVelocity: CGFloat = 150
+    static let initialPlayerExplosionBlastRange: Int = 40
+    static let initialGlobalExplosionDuration: Double = 0.5
+    
+    static let maximumPlayerMissileCapacity: Int = 5
+    static let minimumPlayerMissileReloadTime: Double = 2.0
+    static let maximumPlayerMissileVelocity: CGFloat = 450
+    static let maximumPlayerExplosionBlastRange: Int = 60
+    static let maximumGlobalExplosionDuration: Double = 1.5
+    
+    static let missileCapacityUpgradeAmount: Int = (maximumPlayerMissileCapacity - initialPlayerMissileCapacity) / 2
+    static let missileReloadTimeUpgradeAmount: Double = (minimumPlayerMissileReloadTime - initialPlayerMissileReloadTime) / 2
+    static let missileVelocityUpgradeAmount: CGFloat = (maximumPlayerMissileVelocity - initialPlayerMissileVelocity) / 2
+    static let explosionBlastRangeUpgradeAmount: Int = (maximumPlayerExplosionBlastRange - initialPlayerExplosionBlastRange) / 2
+    static let explosionDurationUpgradeAmount: Double = (maximumGlobalExplosionDuration - initialGlobalExplosionDuration) / 2
+    
+    private var playerMissileCapacity: Int = initialPlayerMissileCapacity
+    private var playerMissileReloadTime: Double = initialPlayerMissileReloadTime
+    private var playerMissileVelocity: CGFloat = initialPlayerMissileVelocity
+    private var playerExplosionBlastRange: Int = initialPlayerExplosionBlastRange
+    private var globalExplosionDuration: Double = initialGlobalExplosionDuration
+    
+    public var isPlayerMissileCapacityUpgradable: Bool {
+        self.playerMissileCapacity < GameScene.maximumPlayerMissileCapacity
+    }
+    public var isPlayerMissileReloadTimeUpgradable: Bool {
+        self.playerMissileReloadTime > GameScene.minimumPlayerMissileReloadTime
+    }
+    public var isPlayerMissileVelocityUpgradable: Bool {
+        self.playerMissileVelocity < GameScene.maximumPlayerMissileVelocity
+    }
+    public var isPlayerExplosionBlastRangeUpgradable: Bool {
+        self.playerExplosionBlastRange < GameScene.maximumPlayerExplosionBlastRange
+    }
+    public var isGlobalExplosionDurationUpgradable: Bool {
+        self.globalExplosionDuration < GameScene.maximumGlobalExplosionDuration
+    }
+    
+    func getMissileCapacity() -> Int {
+        return self.playerMissileCapacity
+    }
+    
+    func getMissileReloadTime() -> Double {
+        return self.playerMissileReloadTime
+    }
+    
+    func getMissileVelocity() -> CGFloat {
+        return self.playerMissileVelocity
+    }
+    
+    func getExplosionBlastRange() -> Int {
+        return self.playerExplosionBlastRange
+    }
+    
+    func getExplosionDuration() -> Double {
+        return self.globalExplosionDuration
+    }
     
     // MARK: - Entrypoint to GameScene
     public override func didMove(to view: SKView) {
-        print("TEST54")
+        print("TEST55")
         physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
         physicsBody?.friction = 0.0
         
@@ -143,7 +199,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             self.playerScore = self.playerScore + UInt64(blastRange)
             
             DispatchQueue.main.asyncAfter(deadline: .now() + explosionChainingDelay) {
-                let newExplosion = EnemyExplosion(position: contact.contactPoint, blastRange: blastRange, chainingCombo: 1)
+                let newExplosion = EnemyExplosion(position: contact.contactPoint, blastRange: blastRange, chainingCombo: 1, gameScene: self)
                 self.addChild(newExplosion)
             }
             
@@ -156,7 +212,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             self.playerScore = self.playerScore + UInt64(blastRange * (combo * 10) * (combo < 5 ? 1 : 10))
             
             DispatchQueue.main.asyncAfter(deadline: .now() + explosionChainingDelay) {
-                let newExplosion = EnemyExplosion(position: contact.contactPoint, blastRange: blastRange, chainingCombo: combo == 0 ? 0 : combo + 1)
+                let newExplosion = EnemyExplosion(position: contact.contactPoint, blastRange: blastRange, chainingCombo: combo == 0 ? 0 : combo + 1, gameScene: self)
                 self.generateComboLabel(combo: combo, position: contact.contactPoint, range: blastRange)
                 self.addChild(newExplosion)
             }
@@ -169,7 +225,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             self.playerScore = self.playerScore + UInt64(blastRange)
             
             DispatchQueue.main.asyncAfter(deadline: .now() + explosionChainingDelay) {
-                let newExplosion = EnemyExplosion(position: contact.contactPoint, blastRange: blastRange, chainingCombo: 1)
+                let newExplosion = EnemyExplosion(position: contact.contactPoint, blastRange: blastRange, chainingCombo: 1, gameScene: self)
                 self.addChild(newExplosion)
             }
             
@@ -182,7 +238,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             self.playerScore = self.playerScore + UInt64(blastRange * (combo * 10) * (combo < 5 ? 1 : 10))
             
             DispatchQueue.main.asyncAfter(deadline: .now() + explosionChainingDelay) {
-                let newExplosion = EnemyExplosion(position: contact.contactPoint, blastRange: blastRange, chainingCombo: combo == 0 ? 0 : combo + 1)
+                let newExplosion = EnemyExplosion(position: contact.contactPoint, blastRange: blastRange, chainingCombo: combo == 0 ? 0 : combo + 1, gameScene: self)
                 self.generateComboLabel(combo: combo, position: contact.contactPoint, range: blastRange)
                 self.addChild(newExplosion)
             }
@@ -202,7 +258,8 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             let explosion = (contact.bodyA.categoryBitMask == playerExplosionCategory ? nodeA : nodeB) as! PlayerExplosion
             let blastRange = explosion.blastRange
             
-            self.generateItemLabel(useable: GameScene.playerMaximumMissileCapacity < 5, text: "+Ammunition", color: SKColor.yellow, position: contact.contactPoint, range: blastRange)
+            self.upgradePlayerMissileCapacity()
+            self.generateItemLabel(upgradable: self.isPlayerMissileCapacityUpgradable, itemName: "Ammunition", color: SKColor.yellow, position: contact.contactPoint, range: blastRange)
             ammunition.removeFromParent()
             
         case collisionBetweenBlastItemAndPlayerExplosion:
@@ -210,7 +267,8 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             let explosion = (contact.bodyA.categoryBitMask == playerExplosionCategory ? nodeA : nodeB) as! PlayerExplosion
             let blastRange = explosion.blastRange
             
-            self.generateItemLabel(useable: GameScene.playerExplosionBlastRange < 60, text: "+Blast", color: SKColor.red, position: contact.contactPoint, range: blastRange)
+            self.upgradePlayerExplosionBlastRange()
+            self.generateItemLabel(upgradable: self.isPlayerExplosionBlastRangeUpgradable, itemName: "Blast", color: SKColor.red, position: contact.contactPoint, range: blastRange)
             blast.removeFromParent()
             
         case collisionBetweenDurationItemAndPlayerExplosion:
@@ -218,7 +276,8 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             let explosion = (contact.bodyA.categoryBitMask == playerExplosionCategory ? nodeA : nodeB) as! PlayerExplosion
             let blastRange = explosion.blastRange
             
-            self.generateItemLabel(useable: GameScene.explosionDuration < 2.0, text: "+Duration", color: SKColor.orange, position: contact.contactPoint, range: blastRange)
+            self.upgradeGlobalExplosionDuration()
+            self.generateItemLabel(upgradable: self.isGlobalExplosionDurationUpgradable, itemName: "Duration", color: SKColor.orange, position: contact.contactPoint, range: blastRange)
             duration.removeFromParent()
             
         case collisionBetweenReloadItemAndPlayerExplosion:
@@ -226,7 +285,8 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             let explosion = (contact.bodyA.categoryBitMask == playerExplosionCategory ? nodeA : nodeB) as! PlayerExplosion
             let blastRange = explosion.blastRange
             
-            self.generateItemLabel(useable: GameScene.playerMissileReloadTime > 3.0, text: "+Reload", color: SKColor.blue, position: contact.contactPoint, range: blastRange)
+            self.upgradePlayerMissileReloadTime()
+            self.generateItemLabel(upgradable: self.isPlayerMissileReloadTimeUpgradable, itemName: "Reload", color: SKColor.blue, position: contact.contactPoint, range: blastRange)
             reload.removeFromParent()
             
         case collisionBetweenSpeedItemAndPlayerExplosion:
@@ -234,13 +294,57 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             let explosion = (contact.bodyA.categoryBitMask == playerExplosionCategory ? nodeA : nodeB) as! PlayerExplosion
             let blastRange = explosion.blastRange
             
-            self.generateItemLabel(useable: GameScene.playerMissileVelocity < 450, text: "+Speed", color: SKColor.green, position: contact.contactPoint, range: blastRange)
+            self.upgradePlayerMissileVelocity()
+            self.generateItemLabel(upgradable: self.isPlayerMissileVelocityUpgradable, itemName: "Speed", color: SKColor.green, position: contact.contactPoint, range: blastRange)
             speed.removeFromParent()
             
         default:
             print("missing collision type")
         }
     }
+    
+    // MARK: - Player Status Related Methods
+    func upgradePlayerMissileCapacity() {
+        if self.isPlayerMissileCapacityUpgradable {
+            self.playerMissileCapacity += GameScene.missileCapacityUpgradeAmount
+            self.reloadAllSilos()
+        } else {
+            self.playerScore += GameScene.itemScore
+        }
+    }
+    
+    func upgradePlayerMissileVelocity() {
+        if self.isPlayerMissileVelocityUpgradable {
+            self.playerMissileVelocity += GameScene.missileVelocityUpgradeAmount
+        } else {
+            self.playerScore += GameScene.itemScore
+        }
+    }
+    
+    func upgradePlayerMissileReloadTime() {
+        if self.isPlayerMissileReloadTimeUpgradable {
+            self.playerMissileReloadTime += GameScene.missileReloadTimeUpgradeAmount
+        } else {
+            self.playerScore += GameScene.itemScore
+        }
+    }
+    
+    func upgradePlayerExplosionBlastRange() {
+        if self.isPlayerExplosionBlastRangeUpgradable {
+            self.playerExplosionBlastRange += GameScene.explosionBlastRangeUpgradeAmount
+        } else {
+            self.playerScore += GameScene.itemScore
+        }
+    }
+    
+    func upgradeGlobalExplosionDuration() {
+        if self.isGlobalExplosionDurationUpgradable {
+            self.globalExplosionDuration += GameScene.explosionDurationUpgradeAmount
+        } else {
+            self.playerScore += GameScene.itemScore
+        }
+    }
+    
     
     // MARK: - Enemy Raid Methods
     func warheadRaid(timeInterval: TimeInterval) {
@@ -313,7 +417,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     // MARK: - Game related methods
     func reloadAllSilos() {
         for silo in self.silos {
-            silo.numOfLoadedMissiles = GameScene.playerMaximumMissileCapacity
+            silo.numOfLoadedMissiles = self.playerMissileCapacity
         }
     }
     
@@ -385,9 +489,9 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
-    func generateItemLabel(useable: Bool, text: String, color: SKColor, position: CGPoint, range: Int) {
+    func generateItemLabel(upgradable: Bool, itemName: String, color: SKColor, position: CGPoint, range: Int) {
         let comboLabel = SKLabelNode(fontNamed: "PressStart2P")
-        comboLabel.text = useable ? text : "+10000"
+        comboLabel.text = "+\(upgradable ? itemName : String(GameScene.itemScore))"
         comboLabel.fontSize = 12
         comboLabel.fontColor = color
         comboLabel.position = CGPoint(x: position.x, y: position.y + CGFloat(range / 2))

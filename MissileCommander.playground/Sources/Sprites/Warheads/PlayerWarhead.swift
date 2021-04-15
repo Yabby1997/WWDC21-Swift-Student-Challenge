@@ -3,7 +3,7 @@ import SpriteKit
 public class PlayerWarhead: Warhead {
     let missileLaunchSound = soundPlayer(sound: "Audio/launch.wav")
     
-    override init(position: CGPoint, distance: CGFloat, velocity: CGFloat, targetCoordinate: CGPoint, blastRange: Int, gameScene: SKScene) {
+    override init(position: CGPoint, distance: CGFloat, velocity: CGFloat, targetCoordinate: CGPoint, blastRange: Int, gameScene: GameScene) {
         super.init(position: position, distance: distance, velocity: velocity, targetCoordinate: targetCoordinate, blastRange: blastRange, gameScene: gameScene)
         
         self.line.strokeColor = .white
@@ -32,7 +32,7 @@ public class PlayerWarhead: Warhead {
     }
 
     func explode() {
-        let explosion = PlayerExplosion(position: self.position, blastRange: self.blastRange)
+        let explosion = PlayerExplosion(position: self.position, blastRange: self.blastRange, gameScene: self.gameScene)
         self.gameScene.addChild(explosion)
     }
 }

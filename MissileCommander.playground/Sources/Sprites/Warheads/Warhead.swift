@@ -4,12 +4,12 @@ public class Warhead: SKSpriteNode {
     var duration: TimeInterval
     var targetCoordinate: CGPoint
     var blastRange: Int
-    var gameScene: SKScene
+    var gameScene: GameScene
     var line: SKShapeNode = SKShapeNode()
     var lineWidth: CGFloat
     var lineColor: UIColor = .white
     
-    public init(position: CGPoint, distance: CGFloat, velocity: CGFloat, targetCoordinate: CGPoint, blastRange: Int, gameScene: SKScene) {
+    public init(position: CGPoint, distance: CGFloat, velocity: CGFloat, targetCoordinate: CGPoint, blastRange: Int, gameScene: GameScene) {
         self.duration = TimeInterval(distance / velocity)
         self.targetCoordinate = targetCoordinate
         self.blastRange = blastRange
@@ -53,7 +53,7 @@ public class Warhead: SKSpriteNode {
     }
     
     public override func removeFromParent() {
-        self.removePath(delay: GameScene.explosionDuration)
+        self.removePath(delay: self.gameScene.getExplosionDuration())
         super.removeFromParent()
     }
 }

@@ -3,7 +3,7 @@ import SpriteKit
 import AVFoundation
 
 public class Silo: SKSpriteNode{
-    var gameScene: SKScene
+    var gameScene: GameScene
     var numOfLoadedMissiles: Int {
         didSet { self.changeTexture() }
     }
@@ -11,10 +11,10 @@ public class Silo: SKSpriteNode{
         return self.numOfLoadedMissiles > 0
     }
     
-    init(position: CGPoint, gameScene: SKScene) {
-        self.numOfLoadedMissiles = GameScene.playerMaximumMissileCapacity
+    init(position: CGPoint, gameScene: GameScene) {
         self.gameScene = gameScene
-        super.init(texture: SKTexture(imageNamed: "Sprite/silo_\(GameScene.playerMaximumMissileCapacity).png"), color: .clear, size: CGSize(width: 30, height: 30))
+        self.numOfLoadedMissiles = self.gameScene.getMissileCapacity()
+        super.init(texture: SKTexture(imageNamed: "Sprite/silo_\(self.numOfLoadedMissiles).png"), color: .clear, size: CGSize(width: 30, height: 30))
         self.position = position
         
         self.physicsBody = SKPhysicsBody(rectangleOf: self.size)
@@ -29,7 +29,7 @@ public class Silo: SKSpriteNode{
     }
     
     func reload() {
-        if self.numOfLoadedMissiles < GameScene.playerMaximumMissileCapacity {
+        if self.numOfLoadedMissiles < self.gameScene.getMissileCapacity() {
             self.numOfLoadedMissiles = self.numOfLoadedMissiles + 1
         }
     }
@@ -43,14 +43,14 @@ public class Silo: SKSpriteNode{
     func shoot(coordinate: CGPoint, distance: CGFloat) {
         let playerWarhead = PlayerWarhead(position: self.position,
                                           distance: distance,
-                                          velocity: GameScene.playerMissileVelocity,
+                                          velocity: self.gameScene.getMissileVelocity(),
                                           targetCoordinate: coordinate,
-                                          blastRange: GameScene.playerExplosionBlastRange,
+                                          blastRange: self.gameScene.getExplosionBlastRange(),
                                           gameScene: self.gameScene)
         
         self.numOfLoadedMissiles = self.numOfLoadedMissiles - 1
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + GameScene.playerMissileReloadTime) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + self.gameScene.getMissileReloadTime()) {
             self.reload()
         }
         

@@ -1,9 +1,9 @@
 import SpriteKit
 
 public class Bomber: SKSpriteNode {
-    let gameScene: SKScene
+    let gameScene: GameScene
     
-    public init(yPosition: CGFloat, fromRight: Bool, bombingDuration: Double, blastRange: Int, gameScene: SKScene) {
+    public init(yPosition: CGFloat, fromRight: Bool, bombingDuration: Double, blastRange: Int, gameScene: GameScene) {
         self.gameScene = gameScene
         
         super.init(texture: SKTexture(imageNamed: "Sprite/bomber.png"), color: .clear, size: CGSize(width: 50, height: 30))

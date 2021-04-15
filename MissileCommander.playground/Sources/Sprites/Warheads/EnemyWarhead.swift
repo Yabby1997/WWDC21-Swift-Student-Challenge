@@ -1,7 +1,7 @@
 import SpriteKit
 
 public class EnemyWarhead: Warhead {
-    override init(position: CGPoint, distance: CGFloat, velocity: CGFloat, targetCoordinate: CGPoint, blastRange: Int, gameScene: SKScene) {
+    override init(position: CGPoint, distance: CGFloat, velocity: CGFloat, targetCoordinate: CGPoint, blastRange: Int, gameScene: GameScene) {
         super.init(position: position, distance: distance, velocity: velocity, targetCoordinate: targetCoordinate, blastRange: blastRange, gameScene: gameScene)
         
         self.color = .red
@@ -30,7 +30,7 @@ public class EnemyWarhead: Warhead {
     }
     
     func explode() {
-        let explosion = EnemyExplosion(position: self.position, blastRange: self.blastRange, chainingCombo: 0)
+        let explosion = EnemyExplosion(position: self.position, blastRange: self.blastRange, chainingCombo: 0, gameScene: self.gameScene)
         self.gameScene.addChild(explosion)
     }
 }
