@@ -1,7 +1,10 @@
 import SpriteKit
 
 public class Explosion: SKSpriteNode {
+    let blastRange: Int
+    
     init(position: CGPoint, blastRange: Int) {
+        self.blastRange = blastRange
         super.init(texture: SKTexture(imageNamed: "Sprite/explosion_\(blastRange).png"), color: .clear, size: CGSize(width: blastRange, height: blastRange))
         self.position = position
         

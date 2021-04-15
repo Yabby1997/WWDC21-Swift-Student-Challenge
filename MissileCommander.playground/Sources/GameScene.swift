@@ -65,15 +65,16 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     private var tzarRaidInterval: Double = 18.0
     private var tzarPerRaid: Int = 1
     
-    static var playerMaximumMissileCapacity: Int = 5
-    static var playerMissileReloadTime: Double = 1.0
-    static var playerMissileVelocity: CGFloat = 200
-    static var playerExplosionBlastRange: Int = 60
-    static var explosionDuration: Double = 1.0
+    // MARK: - Player Status
+    static var playerMaximumMissileCapacity: Int = 3
+    static var playerMissileReloadTime: Double = 5.0
+    static var playerMissileVelocity: CGFloat = 150
+    static var playerExplosionBlastRange: Int = 40
+    static var explosionDuration: Double = 0.5
     
     // MARK: - Entrypoint to GameScene
     public override func didMove(to view: SKView) {
-        print("TEST50")
+        print("TEST54")
         physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
         physicsBody?.friction = 0.0
         
@@ -85,6 +86,41 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         generateScoreLabel()
         generateSilos()
         generateCities()
+        
+        let speed = Speed(position: CGPoint(x: frame.midX, y: frame.midY + 100), gameScene: self)
+        addChild(speed)
+        let speed2 = Speed(position: CGPoint(x: frame.midX - 100, y: frame.midY + 100), gameScene: self)
+        addChild(speed2)
+        let speed3 = Speed(position: CGPoint(x: frame.midX + 100, y: frame.midY + 100), gameScene: self)
+        addChild(speed3)
+        
+        let reload = Reload(position: CGPoint(x: frame.midX, y: frame.midY + 50), gameScene: self)
+        addChild(reload)
+        let reload2 = Reload(position: CGPoint(x: frame.midX - 100, y: frame.midY + 50), gameScene: self)
+        addChild(reload2)
+        let reload3 = Reload(position: CGPoint(x: frame.midX + 100, y: frame.midY + 50), gameScene: self)
+        addChild(reload3)
+        
+        let dura = Duration(position: CGPoint(x: frame.midX, y: frame.midY), gameScene: self)
+        addChild(dura)
+        let dura2 = Duration(position: CGPoint(x: frame.midX - 100, y: frame.midY), gameScene: self)
+        addChild(dura2)
+        let dura3 = Duration(position: CGPoint(x: frame.midX + 100, y: frame.midY), gameScene: self)
+        addChild(dura3)
+        
+        let ammu = Ammunition(position: CGPoint(x: frame.midX, y: frame.midY - 50), gameScene: self)
+        addChild(ammu)
+        let ammu2 = Ammunition(position: CGPoint(x: frame.midX - 100, y: frame.midY - 50), gameScene: self)
+        addChild(ammu2)
+        let ammu3 = Ammunition(position: CGPoint(x: frame.midX + 100, y: frame.midY - 50), gameScene: self)
+        addChild(ammu3)
+        
+        let blast = Blast(position: CGPoint(x: frame.midX, y: frame.midY - 100), gameScene: self)
+        addChild(blast)
+        let blast2 = Blast(position: CGPoint(x: frame.midX - 100, y: frame.midY - 100), gameScene: self)
+        addChild(blast2)
+        let blast3 = Blast(position: CGPoint(x: frame.midX + 100, y: frame.midY - 100), gameScene: self)
+        addChild(blast3)
         
         warheadRaid(timeInterval: warheadRaidInterval)
         bomberRaid(timeInterval: bomberRaidInterval)
@@ -161,6 +197,46 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             removeCityFromGameScene(targetCity: city)
             city.removeFromParent()
             
+        case collisionBetweenAmmunitionItemAndPlayerExplosion:
+            let ammunition = (contact.bodyA.categoryBitMask == ammunitionItemCategory ? nodeA : nodeB) as! Ammunition
+            let explosion = (contact.bodyA.categoryBitMask == playerExplosionCategory ? nodeA : nodeB) as! PlayerExplosion
+            let blastRange = explosion.blastRange
+            
+            self.generateItemLabel(useable: GameScene.playerMaximumMissileCapacity < 5, text: "+Ammunition", color: SKColor.yellow, position: contact.contactPoint, range: blastRange)
+            ammunition.removeFromParent()
+            
+        case collisionBetweenBlastItemAndPlayerExplosion:
+            let blast = (contact.bodyA.categoryBitMask == blastItemCategory ? nodeA : nodeB) as! Blast
+            let explosion = (contact.bodyA.categoryBitMask == playerExplosionCategory ? nodeA : nodeB) as! PlayerExplosion
+            let blastRange = explosion.blastRange
+            
+            self.generateItemLabel(useable: GameScene.playerExplosionBlastRange < 60, text: "+Blast", color: SKColor.red, position: contact.contactPoint, range: blastRange)
+            blast.removeFromParent()
+            
+        case collisionBetweenDurationItemAndPlayerExplosion:
+            let duration = (contact.bodyA.categoryBitMask == durationItemCategory ? nodeA : nodeB) as! Duration
+            let explosion = (contact.bodyA.categoryBitMask == playerExplosionCategory ? nodeA : nodeB) as! PlayerExplosion
+            let blastRange = explosion.blastRange
+            
+            self.generateItemLabel(useable: GameScene.explosionDuration < 2.0, text: "+Duration", color: SKColor.orange, position: contact.contactPoint, range: blastRange)
+            duration.removeFromParent()
+            
+        case collisionBetweenReloadItemAndPlayerExplosion:
+            let reload = (contact.bodyA.categoryBitMask == reloadItemCategory ? nodeA : nodeB) as! Reload
+            let explosion = (contact.bodyA.categoryBitMask == playerExplosionCategory ? nodeA : nodeB) as! PlayerExplosion
+            let blastRange = explosion.blastRange
+            
+            self.generateItemLabel(useable: GameScene.playerMissileReloadTime > 3.0, text: "+Reload", color: SKColor.blue, position: contact.contactPoint, range: blastRange)
+            reload.removeFromParent()
+            
+        case collisionBetweenSpeedItemAndPlayerExplosion:
+            let speed = (contact.bodyA.categoryBitMask == speedItemCategory ? nodeA : nodeB) as! Speed
+            let explosion = (contact.bodyA.categoryBitMask == playerExplosionCategory ? nodeA : nodeB) as! PlayerExplosion
+            let blastRange = explosion.blastRange
+            
+            self.generateItemLabel(useable: GameScene.playerMissileVelocity < 450, text: "+Speed", color: SKColor.green, position: contact.contactPoint, range: blastRange)
+            speed.removeFromParent()
+            
         default:
             print("missing collision type")
         }
@@ -235,6 +311,16 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     // MARK: - Game related methods
+    func reloadAllSilos() {
+        for silo in self.silos {
+            silo.numOfLoadedMissiles = GameScene.playerMaximumMissileCapacity
+        }
+    }
+    
+    func score(amount: UInt64) {
+        self.playerScore = self.playerScore + amount
+    }
+    
     func setTimeLabel(alwaysDisplayColon: Bool) {
         let minutes = Int(self.time / 60)
         let seconds = Int(self.time - minutes * 60)
@@ -299,6 +385,20 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
+    func generateItemLabel(useable: Bool, text: String, color: SKColor, position: CGPoint, range: Int) {
+        let comboLabel = SKLabelNode(fontNamed: "PressStart2P")
+        comboLabel.text = useable ? text : "+10000"
+        comboLabel.fontSize = 12
+        comboLabel.fontColor = color
+        comboLabel.position = CGPoint(x: position.x, y: position.y + CGFloat(range / 2))
+        comboLabel.zPosition = 1
+        self.addChild(comboLabel)
+        
+        let wait = SKAction.wait(forDuration: 2)
+        let remove = SKAction.run { comboLabel.removeFromParent() }
+        self.run(SKAction.sequence([wait, remove]))
+    }
+    
     @objc func generateEnemyWarhead() {
         for _ in 1...warheadPerRaid {
             guard let randomTargetX = self.randomTargetLocation else {
@@ -312,7 +412,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             let from = CGPoint(x: fromX, y: 500)
             
             let distance = getDistance(from: from, to: to)
-            let velocity = CGFloat([50, 75, 100].randomElement()!)
+            let velocity = CGFloat([75, 100, 150].randomElement()!)//CGFloat([50, 75, 100].randomElement()!)
             let blastRange =  [40, 50, 60].randomElement()!
             let enemyWarhead = EnemyWarhead(position: from, distance: distance, velocity: velocity, targetCoordinate: to, blastRange: blastRange, gameScene: self)
             addChild(enemyWarhead)

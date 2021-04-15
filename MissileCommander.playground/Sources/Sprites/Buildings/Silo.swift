@@ -29,7 +29,9 @@ public class Silo: SKSpriteNode{
     }
     
     func reload() {
-        self.numOfLoadedMissiles = self.numOfLoadedMissiles + 1
+        if self.numOfLoadedMissiles < GameScene.playerMaximumMissileCapacity {
+            self.numOfLoadedMissiles = self.numOfLoadedMissiles + 1
+        }
     }
     
     func changeTexture() {
