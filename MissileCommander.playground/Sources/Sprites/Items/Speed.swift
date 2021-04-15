@@ -1,8 +1,8 @@
 import SpriteKit
 
 public class Speed: Item {
-    init(position: CGPoint, gameScene: SKScene) {
-        super.init(texture: SKTexture(imageNamed: "Sprite/speed.png"), position: position, gameScene: gameScene)
+    init(position: CGPoint, mutateCount: Int = 0, gameScene: SKScene) {
+        super.init(texture: SKTexture(imageNamed: "Sprite/speed.png"), position: position, mutateCount: mutateCount, gameScene: gameScene)
         
         self.physicsBody?.categoryBitMask = speedItemCategory
         

@@ -50,17 +50,17 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     private var isGameOver: Bool = false
     private var explosionChainingDelay: Double = 0.2
     
-    private var isWarheadRaidOn: Bool = true
+    private var isWarheadRaidOn: Bool = false
     private var warheadRaidTimer: Timer!
     private var warheadRaidInterval: Double = 10.0
     private var warheadPerRaid: Int = 10
     
-    private var isBomberRaidOn: Bool = true
+    private var isBomberRaidOn: Bool = false
     private var bomberRaidTimer: Timer!
     private var bomberRaidInterval: Double = 15.0
     private var bomberPerRaid: Int = 1
     
-    private var isTzarRaidOn: Bool = true
+    private var isTzarRaidOn: Bool = false
     private var tzarRaidTimer: Timer!
     private var tzarRaidInterval: Double = 18.0
     private var tzarPerRaid: Int = 1
@@ -130,7 +130,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     
     // MARK: - Entrypoint to GameScene
     public override func didMove(to view: SKView) {
-        print("TEST55")
+        print("TEST58")
         physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
         physicsBody?.friction = 0.0
         
@@ -559,6 +559,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         self.scoreLabel?.fontSize = 20
         self.scoreLabel?.fontColor = SKColor.white
         self.scoreLabel?.position = CGPoint(x: frame.midX, y: 440)
+        self.scoreLabel?.zPosition = 50
         self.addChild(scoreLabel!)
     }
     
@@ -568,6 +569,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         self.timeLabel?.fontSize = 20
         self.timeLabel?.fontColor = SKColor.white
         self.timeLabel?.position = CGPoint(x: frame.midX, y: 470)
+        self.timeLabel?.zPosition = 50
         self.addChild(timeLabel!)
         let countOneSecond = SKAction.run {
             self.time = self.time + 1

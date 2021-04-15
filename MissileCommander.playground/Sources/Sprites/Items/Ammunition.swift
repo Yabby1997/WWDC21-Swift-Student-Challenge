@@ -1,8 +1,8 @@
 import SpriteKit
 
 public class Ammunition: Item {
-    init(position: CGPoint, gameScene: SKScene) {
-        super.init(texture: SKTexture(imageNamed: "Sprite/ammunition.png"), position: position, gameScene: gameScene)
+    init(position: CGPoint, mutateCount: Int = 0, gameScene: SKScene) {
+        super.init(texture: SKTexture(imageNamed: "Sprite/ammunition.png"), position: position, mutateCount: mutateCount, gameScene: gameScene)
         
         self.physicsBody?.categoryBitMask = ammunitionItemCategory
         
