@@ -8,6 +8,9 @@ public class PlayerWarhead: Warhead {
         
         self.line.strokeColor = .white
         
+        let aim = PlayerAim(position: self.targetCoordinate, duration: self.duration)
+        self.gameScene.addChild(aim)
+        
         launch()
     }
     
