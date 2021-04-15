@@ -20,6 +20,7 @@ public class Warhead: SKSpriteNode {
         
         super.init(texture: SKTexture(imageNamed: "Sprite/warhead_\(warheadSize).png"), color: .clear, size: CGSize(width: warheadSize, height: warheadSize))
         
+        self.zPosition = -10
         self.position = position
         
         let wait = SKAction.wait(forDuration: 0.01)
