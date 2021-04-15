@@ -6,6 +6,8 @@ public class PlayerWarhead: Warhead {
     override init(position: CGPoint, distance: CGFloat, velocity: CGFloat, targetCoordinate: CGPoint, blastRange: Int, gameScene: SKScene) {
         super.init(position: position, distance: distance, velocity: velocity, targetCoordinate: targetCoordinate, blastRange: blastRange, gameScene: gameScene)
         
+        self.line.strokeColor = .white
+        
         launch()
     }
     

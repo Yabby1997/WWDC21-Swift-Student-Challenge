@@ -2,11 +2,24 @@
 import SpriteKit
 
 public class GameScene: SKScene, SKPhysicsContactDelegate {
-    private var time: Int = 3666 {
+    // MARK: - Labels
+    var scoreLabel: SKLabelNode?
+    var timeLabel: SKLabelNode?
+    
+    // MARK: - Score and Time
+    private var playerScore: UInt64 = 0 {
+        didSet {
+            scoreLabel?.text = "\(playerScore)"
+        }
+    }
+    
+    private var time: Int = 0 {
         didSet {
             setTimeLabel(alwaysDisplayColon: false)
         }
     }
+    
+    // MARK: - Player buildings
     private var siloLocation: [Int] = [2, 10, 18] {
         didSet {
             if siloLocation.isEmpty {
@@ -33,45 +46,34 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
+    // MARK: - Game Status
     private var isGameOver: Bool = false
     private var explosionChainingDelay: Double = 0.2
     
     private var isWarheadRaidOn: Bool = true
     private var warheadRaidTimer: Timer!
-    private var warheadRaidInterval: Double = 5.0
-    private var warheadPerRaid: Int = 4
+    private var warheadRaidInterval: Double = 10.0
+    private var warheadPerRaid: Int = 10
     
-    private var isBomberRaidOn: Bool = false
+    private var isBomberRaidOn: Bool = true
     private var bomberRaidTimer: Timer!
     private var bomberRaidInterval: Double = 15.0
     private var bomberPerRaid: Int = 1
     
-    private var isTzarRaidOn: Bool = false
+    private var isTzarRaidOn: Bool = true
     private var tzarRaidTimer: Timer!
     private var tzarRaidInterval: Double = 18.0
     private var tzarPerRaid: Int = 1
     
-    // MARK: - Player static status
-    private var playerScore: UInt64 = 0 {
-        didSet {
-            scoreLabel?.text = "\(playerScore)"
-        }
-    }
-    
-    var scoreLabel: SKLabelNode?
-    var timeLabel: SKLabelNode?
-    
-    static var playerMaximumMissileCapacity: Int = 3
-    static var playerMissileReloadTime: Double = 3.0
+    static var playerMaximumMissileCapacity: Int = 5
+    static var playerMissileReloadTime: Double = 1.0
     static var playerMissileVelocity: CGFloat = 200
-    static var playerExplosionBlastRange: Int = 40
-    static var playerExplosionDuration: Double = 1.0
+    static var playerExplosionBlastRange: Int = 60
+    static var explosionDuration: Double = 1.0
     
-    // MARK: - Enemy static status
-    static var enemyExplosionDuration: Double = 1.0
-    
+    // MARK: - Entrypoint to GameScene
     public override func didMove(to view: SKView) {
-        print("TEST36")
+        print("TEST45")
         physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
         physicsBody?.friction = 0.0
         
@@ -164,7 +166,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
-    // MARK: - Raid
+    // MARK: - Enemy Raid Methods
     func warheadRaid(timeInterval: TimeInterval) {
         if !isGameOver && isWarheadRaidOn {
             warheadRaidTimer?.invalidate()
@@ -198,6 +200,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
+    // MARK: - Building related methods
     func getClosestAvailableSiloInfo(targetCoordinate: CGPoint) -> (Silo, CGFloat)? {
         var closestDistance: CGFloat = 10_000
         var closestSilo: Silo?
@@ -226,6 +229,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         self.cityLocation.remove(at: targetIndex)
     }
     
+    // MARK: - Game related methods
     func setTimeLabel(alwaysDisplayColon: Bool) {
         let minutes = Int(self.time / 60)
         let seconds = Int(self.time - minutes * 60)
@@ -337,7 +341,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func generateTimeLabel() {
         self.timeLabel = SKLabelNode(fontNamed: "PressStart2P")
-        self.timeLabel?.text = "0"
+        self.timeLabel?.text = "00"
         self.timeLabel?.fontSize = 20
         self.timeLabel?.fontColor = SKColor.white
         self.timeLabel?.position = CGPoint(x: frame.midX, y: 470)

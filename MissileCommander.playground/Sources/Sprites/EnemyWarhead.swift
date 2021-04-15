@@ -6,12 +6,14 @@ public class EnemyWarhead: Warhead {
         
         self.color = .red
         self.colorBlendFactor = 1.0
+        self.lineColor = .red
         
         self.physicsBody = SKPhysicsBody(circleOfRadius: self.size.width / 2)
         self.physicsBody?.affectedByGravity = false
         self.physicsBody?.categoryBitMask = enemyWarheadCategory
         self.physicsBody?.collisionBitMask = 0
         self.physicsBody?.usesPreciseCollisionDetection = true
+        
         
         launch()
     }

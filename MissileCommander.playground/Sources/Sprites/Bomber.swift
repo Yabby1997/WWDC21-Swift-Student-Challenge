@@ -22,7 +22,7 @@ public class Bomber: SKSpriteNode {
         self.position = CGPoint(x: fromRight ? 600 : 0, y: yPosition)
         
         flyThrough(fromRight: fromRight)
-        attack(bombingDuration: bombingDuration, blastRange: blastRange)
+        attack(fromRight: fromRight, bombingDuration: bombingDuration, blastRange: blastRange)
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -35,10 +35,10 @@ public class Bomber: SKSpriteNode {
         self.run(SKAction.sequence([actionMove, actionRemove]))
     }
     
-    func attack(bombingDuration: Double, blastRange: Int) {
+    func attack(fromRight: Bool, bombingDuration: Double, blastRange: Int) {
         let wait = SKAction.wait(forDuration: bombingDuration)
         let bomb = SKAction.run {
-            let targetCoordinate = CGPoint(x: self.position.x, y: 25)
+            let targetCoordinate = CGPoint(x: self.position.x + (fromRight ? -100 : 100), y: 25)
             let distance = getDistance(from: self.position, to: targetCoordinate)
             let warhead = EnemyWarhead(position: self.position,
                                        distance: distance,

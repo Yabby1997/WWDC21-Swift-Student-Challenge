@@ -11,7 +11,7 @@ public class PlayerExplosion: Explosion {
         guard let explosionSound = explosionSound else { return }
         explosionSound.play()
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + GameScene.playerExplosionDuration) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + GameScene.explosionDuration) {
             self.removeFromParent()
         }
     }
