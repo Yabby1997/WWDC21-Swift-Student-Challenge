@@ -1,6 +1,5 @@
 import SpriteKit
 import PlaygroundSupport
-import CoreGraphics
 
 let skView = SKView(frame: CGRect(x: 0, y: 0, width: 600, height: 500))
 

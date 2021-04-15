@@ -73,7 +73,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     
     // MARK: - Entrypoint to GameScene
     public override func didMove(to view: SKView) {
-        print("TEST49")
+        print("TEST50")
         physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
         physicsBody?.friction = 0.0
         
@@ -193,10 +193,15 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     public override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         for touch: AnyObject in touches {
             let location = touch.location(in: self)
-            guard let closestAvailableSiloInfo = getClosestAvailableSiloInfo(targetCoordinate: location) else { return }
-            let silo = closestAvailableSiloInfo.0
-            let distance = closestAvailableSiloInfo.1
-            silo.shoot(coordinate: location, distance: distance)
+            let touchedNode = atPoint(location)
+            if touchedNode.name == "retryLabel" {
+                startNewGame()
+            } else {
+                guard let closestAvailableSiloInfo = getClosestAvailableSiloInfo(targetCoordinate: location) else { return }
+                let silo = closestAvailableSiloInfo.0
+                let distance = closestAvailableSiloInfo.1
+                silo.shoot(coordinate: location, distance: distance)
+            }
         }
     }
     
@@ -249,6 +254,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         if isBomberRaidOn { self.bomberRaidTimer.invalidate() }
         if isTzarRaidOn { self.tzarRaidTimer.invalidate() }
         generateGameOverLabel()
+        generateRetryButtonLabel()
     }
     
     // MARK: - Generating sprites
@@ -261,6 +267,19 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         gameOverLabel.zPosition = 1
         let wait = SKAction.wait(forDuration: 2)
         let show = SKAction.run { self.addChild(gameOverLabel) }
+        self.run(SKAction.sequence([wait, show]))
+    }
+    
+    func generateRetryButtonLabel() {
+        let retryLabel = SKLabelNode(fontNamed: "PressStart2P")
+        retryLabel.text = "Press here to try again"
+        retryLabel.name = "retryLabel"
+        retryLabel.fontSize = 10
+        retryLabel.fontColor = .yellow
+        retryLabel.position = CGPoint(x: frame.midX, y: frame.midY - 20)
+        retryLabel.zPosition = 1
+        let wait = SKAction.wait(forDuration: 4)
+        let show = SKAction.run { self.addChild(retryLabel) }
         self.run(SKAction.sequence([wait, show]))
     }
     
