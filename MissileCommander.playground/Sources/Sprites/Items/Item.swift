@@ -4,7 +4,7 @@ public class Item: SKSpriteNode {
     let gameScene: SKScene
     var mutateCount: Int
     
-    public init(texture: SKTexture, position: CGPoint, mutateCount: Int = 0, gameScene: SKScene) {
+    public init(texture: SKTexture = SKTexture(imageNamed: "Sprite/ammunition.png"), position: CGPoint, mutateCount: Int = -1, gameScene: SKScene) {
         self.gameScene = gameScene
         self.mutateCount = mutateCount
         super.init(texture: texture, color: .clear, size: CGSize(width: 30, height: 30))
@@ -17,9 +17,9 @@ public class Item: SKSpriteNode {
         self.physicsBody?.collisionBitMask = 0
         self.physicsBody?.usesPreciseCollisionDetection = true
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-            self.mutate()
-        }
+        let wait = SKAction.wait(forDuration: 3)
+        let mutating = SKAction.run { self.mutate() }
+        self.run(SKAction.sequence([wait, mutating]))
     }
     
     func mutate() {

@@ -50,17 +50,17 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     private var isGameOver: Bool = false
     private var explosionChainingDelay: Double = 0.2
     
-    private var isWarheadRaidOn: Bool = false
+    private var isWarheadRaidOn: Bool = true
     private var warheadRaidTimer: Timer!
     private var warheadRaidInterval: Double = 10.0
     private var warheadPerRaid: Int = 10
     
-    private var isBomberRaidOn: Bool = false
+    private var isBomberRaidOn: Bool = true
     private var bomberRaidTimer: Timer!
     private var bomberRaidInterval: Double = 15.0
     private var bomberPerRaid: Int = 1
     
-    private var isTzarRaidOn: Bool = false
+    private var isTzarRaidOn: Bool = true
     private var tzarRaidTimer: Timer!
     private var tzarRaidInterval: Double = 18.0
     private var tzarPerRaid: Int = 1
@@ -143,40 +143,18 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         generateSilos()
         generateCities()
         
-        let speed = Speed(position: CGPoint(x: frame.midX, y: frame.midY + 100), gameScene: self)
-        addChild(speed)
-        let speed2 = Speed(position: CGPoint(x: frame.midX - 100, y: frame.midY + 100), gameScene: self)
-        addChild(speed2)
-        let speed3 = Speed(position: CGPoint(x: frame.midX + 100, y: frame.midY + 100), gameScene: self)
-        addChild(speed3)
-        
-        let reload = Reload(position: CGPoint(x: frame.midX, y: frame.midY + 50), gameScene: self)
-        addChild(reload)
-        let reload2 = Reload(position: CGPoint(x: frame.midX - 100, y: frame.midY + 50), gameScene: self)
-        addChild(reload2)
-        let reload3 = Reload(position: CGPoint(x: frame.midX + 100, y: frame.midY + 50), gameScene: self)
-        addChild(reload3)
-        
-        let dura = Duration(position: CGPoint(x: frame.midX, y: frame.midY), gameScene: self)
-        addChild(dura)
-        let dura2 = Duration(position: CGPoint(x: frame.midX - 100, y: frame.midY), gameScene: self)
-        addChild(dura2)
-        let dura3 = Duration(position: CGPoint(x: frame.midX + 100, y: frame.midY), gameScene: self)
-        addChild(dura3)
-        
-        let ammu = Ammunition(position: CGPoint(x: frame.midX, y: frame.midY - 50), gameScene: self)
-        addChild(ammu)
-        let ammu2 = Ammunition(position: CGPoint(x: frame.midX - 100, y: frame.midY - 50), gameScene: self)
-        addChild(ammu2)
-        let ammu3 = Ammunition(position: CGPoint(x: frame.midX + 100, y: frame.midY - 50), gameScene: self)
-        addChild(ammu3)
-        
-        let blast = Blast(position: CGPoint(x: frame.midX, y: frame.midY - 100), gameScene: self)
-        addChild(blast)
-        let blast2 = Blast(position: CGPoint(x: frame.midX - 100, y: frame.midY - 100), gameScene: self)
-        addChild(blast2)
-        let blast3 = Blast(position: CGPoint(x: frame.midX + 100, y: frame.midY - 100), gameScene: self)
-        addChild(blast3)
+        self.dropRandomItem(probability: 100, position: CGPoint(x: frame.midX - 100, y: frame.midY))
+        self.dropRandomItem(probability: 100, position: CGPoint(x: frame.midX, y: frame.midY))
+        self.dropRandomItem(probability: 100, position: CGPoint(x: frame.midX + 100, y: frame.midY))
+        self.dropRandomItem(probability: 100, position: CGPoint(x: frame.midX - 100, y: frame.midY))
+        self.dropRandomItem(probability: 100, position: CGPoint(x: frame.midX, y: frame.midY))
+        self.dropRandomItem(probability: 100, position: CGPoint(x: frame.midX + 100, y: frame.midY))
+        self.dropRandomItem(probability: 100, position: CGPoint(x: frame.midX - 100, y: frame.midY))
+        self.dropRandomItem(probability: 100, position: CGPoint(x: frame.midX, y: frame.midY))
+        self.dropRandomItem(probability: 100, position: CGPoint(x: frame.midX + 100, y: frame.midY))
+        self.dropRandomItem(probability: 100, position: CGPoint(x: frame.midX - 100, y: frame.midY))
+        self.dropRandomItem(probability: 100, position: CGPoint(x: frame.midX, y: frame.midY))
+        self.dropRandomItem(probability: 100, position: CGPoint(x: frame.midX + 100, y: frame.midY))
         
         warheadRaid(timeInterval: warheadRaidInterval)
         bomberRaid(timeInterval: bomberRaidInterval)
@@ -201,6 +179,12 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             DispatchQueue.main.asyncAfter(deadline: .now() + explosionChainingDelay) {
                 let newExplosion = EnemyExplosion(position: contact.contactPoint, blastRange: blastRange, chainingCombo: 1, gameScene: self)
                 self.addChild(newExplosion)
+                
+                if blastRange == 300 {
+                    self.dropRandomItem(probability: 30, position: contact.contactPoint)
+                } else {
+                    self.dropRandomItem(probability: 3, position: contact.contactPoint)
+                }
             }
             
         case collisionBetweenEnemyWarheadAndEnemyExplosion:
@@ -215,6 +199,12 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
                 let newExplosion = EnemyExplosion(position: contact.contactPoint, blastRange: blastRange, chainingCombo: combo == 0 ? 0 : combo + 1, gameScene: self)
                 self.generateComboLabel(combo: combo, position: contact.contactPoint, range: blastRange)
                 self.addChild(newExplosion)
+                
+                if blastRange == 300 {
+                    self.dropRandomItem(probability: 50, position: contact.contactPoint)
+                } else {
+                    self.dropRandomItem(probability: 5, position: contact.contactPoint)
+                }
             }
             
             
@@ -227,6 +217,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             DispatchQueue.main.asyncAfter(deadline: .now() + explosionChainingDelay) {
                 let newExplosion = EnemyExplosion(position: contact.contactPoint, blastRange: blastRange, chainingCombo: 1, gameScene: self)
                 self.addChild(newExplosion)
+                self.dropRandomItem(probability: 10, position: contact.contactPoint)
             }
             
         case collisionBetweenEnemyBomberAndEnemyExplosion:
@@ -241,6 +232,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
                 let newExplosion = EnemyExplosion(position: contact.contactPoint, blastRange: blastRange, chainingCombo: combo == 0 ? 0 : combo + 1, gameScene: self)
                 self.generateComboLabel(combo: combo, position: contact.contactPoint, range: blastRange)
                 self.addChild(newExplosion)
+                self.dropRandomItem(probability: 20, position: contact.contactPoint)
             }
             
         case collisionBetweenPlayerSiloAndEnemyExplosion, collisionBetweenPlayerSiloAndPlayerExplosion:
@@ -307,10 +299,10 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     func upgradePlayerMissileCapacity() {
         if self.isPlayerMissileCapacityUpgradable {
             self.playerMissileCapacity += GameScene.missileCapacityUpgradeAmount
-            self.reloadAllSilos()
         } else {
             self.playerScore += GameScene.itemScore
         }
+        self.reloadAllSilos()
     }
     
     func upgradePlayerMissileVelocity() {
@@ -318,6 +310,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             self.playerMissileVelocity += GameScene.missileVelocityUpgradeAmount
         } else {
             self.playerScore += GameScene.itemScore
+            self.reloadAllSilos()
         }
     }
     
@@ -326,6 +319,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             self.playerMissileReloadTime += GameScene.missileReloadTimeUpgradeAmount
         } else {
             self.playerScore += GameScene.itemScore
+            self.reloadAllSilos()
         }
     }
     
@@ -334,6 +328,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             self.playerExplosionBlastRange += GameScene.explosionBlastRangeUpgradeAmount
         } else {
             self.playerScore += GameScene.itemScore
+            self.reloadAllSilos()
         }
     }
     
@@ -342,6 +337,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             self.globalExplosionDuration += GameScene.explosionDurationUpgradeAmount
         } else {
             self.playerScore += GameScene.itemScore
+            self.reloadAllSilos()
         }
     }
     
@@ -448,13 +444,42 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     // MARK: - Generating sprites
+    func dropRandomItem(probability: Double, position: CGPoint) {
+        if gacha(probability: probability) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + self.globalExplosionDuration) {
+                self.generateRandomItem(position: position)
+            }
+        }
+    }
+    
+    func generateRandomItem(position: CGPoint) {
+        let randomPick = Int.random(in: 1...5)
+        var randomItem: Item?
+        switch randomPick {
+        case 1:
+            randomItem = Ammunition(position: position, gameScene: self)
+        case 2:
+            randomItem = Blast(position: position, gameScene: self)
+        case 3:
+            randomItem = Duration(position: position, gameScene: self)
+        case 4:
+            randomItem = Reload(position: position, gameScene: self)
+        case 5:
+            randomItem = Speed(position: position, gameScene: self)
+        default:
+            print("missing item pick")
+        }
+        guard let pickedItem = randomItem else { return }
+        self.addChild(pickedItem)
+    }
+    
     func generateGameOverLabel() {
         let gameOverLabel = SKLabelNode(fontNamed: "PressStart2P")
         gameOverLabel.text = "GAME OVER"
         gameOverLabel.fontSize = 30
         gameOverLabel.fontColor = .white
         gameOverLabel.position = CGPoint(x: frame.midX, y: frame.midY)
-        gameOverLabel.zPosition = 1
+        gameOverLabel.zPosition = 100
         let wait = SKAction.wait(forDuration: 2)
         let show = SKAction.run { self.addChild(gameOverLabel) }
         self.run(SKAction.sequence([wait, show]))
@@ -467,7 +492,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         retryLabel.fontSize = 10
         retryLabel.fontColor = .yellow
         retryLabel.position = CGPoint(x: frame.midX, y: frame.midY - 20)
-        retryLabel.zPosition = 1
+        retryLabel.zPosition = 100
         let wait = SKAction.wait(forDuration: 4)
         let show = SKAction.run { self.addChild(retryLabel) }
         self.run(SKAction.sequence([wait, show]))

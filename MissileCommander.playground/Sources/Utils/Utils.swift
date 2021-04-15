@@ -58,3 +58,8 @@ func loadFont(font: String) {
     let fontURL = Bundle.main.url(forResource: "Font/\(font)", withExtension: "ttf")
     CTFontManagerRegisterFontsForURL(fontURL! as CFURL, CTFontManagerScope.process, nil)
 }
+
+func gacha(probability: Double) -> Bool {
+    let randomNumber = Double.random(in: 0...100)
+    return randomNumber <= probability
+}
