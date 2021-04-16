@@ -17,7 +17,7 @@ public class Item: SKSpriteNode {
         self.physicsBody?.collisionBitMask = 0
         self.physicsBody?.usesPreciseCollisionDetection = true
         
-        let wait = SKAction.wait(forDuration: 3)
+        let wait = SKAction.wait(forDuration: 5)
         let mutating = SKAction.run { self.mutate() }
         self.run(SKAction.sequence([wait, mutating]))
     }
