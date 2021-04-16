@@ -106,12 +106,12 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     
     static let initialPlayerMissileCapacity: Int = 2
     static let initialPlayerMissileReloadTime: Double = 3.0
-    static let initialPlayerMissileVelocity: CGFloat = 200
+    static let initialPlayerMissileVelocity: CGFloat = 250
     static let initialPlayerExplosionBlastRange: Int = 40
     static let initialGlobalExplosionDuration: Double = 0.5
     
     static let maximumPlayerMissileCapacity: Int = 5
-    static let minimumPlayerMissileReloadTime: Double = 1.5
+    static let minimumPlayerMissileReloadTime: Double = 1.0
     static let maximumPlayerMissileVelocity: CGFloat = 450
     static let maximumPlayerExplosionBlastRange: Int = 65
     static let maximumGlobalExplosionDuration: Double = 1.5
@@ -172,7 +172,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     
     // MARK: - Entrypoint to GameScene
     public override func didMove(to view: SKView) {
-        print("TEST70")
+        print("TEST71")
         physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
         physicsBody?.friction = 0.0
         
@@ -542,20 +542,43 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     func setDifficulty(time: Int) {
         if isGameOver { return }
         
-        if time < 450 && time > 180 && ( time % 60 == 0) {
-            self.tzarRaidInterval -= 0.3
-            self.bomberPerRaid += 1
-            self.bomberRaidInterval -= 0.2
-        } else if time > 180 && (time % 30 == 0) {
+        if time == 360 {
+            self.warheadPerRaid = 30
+            self.bomberPerRaid = 7
+            self.enemyWarheadVelocityCandidates.append(210)
+            self.enemyWarheadVelocityCandidates.append(220)
+        } else if time == 330 {
+            self.warheadPerRaid = 25
+            self.bomberPerRaid = 6
+            self.enemyWarheadVelocityCandidates.append(190)
+            self.enemyWarheadVelocityCandidates.append(200)
+        } else if time == 300 {
+            self.warheadPerRaid = 25
+            self.bomberPerRaid = 5
+            self.enemyWarheadVelocityCandidates.append(170)
+            self.enemyWarheadVelocityCandidates.append(180)
+        } else if time == 270 {
+            self.warheadPerRaid = 20
+            self.bomberPerRaid = 4
+            self.enemyWarheadVelocityCandidates.append(150)
+            self.enemyWarheadVelocityCandidates.append(160)
+        } else if time == 240 {
+            self.warheadPerRaid = 15
+            self.bomberPerRaid = 3
+            self.enemyWarheadVelocityCandidates.append(130)
+            self.enemyWarheadVelocityCandidates.append(140)
+        } else if time == 210 {
             self.generateDifficultyLabel(text: "Hell", fontColor: .red)
-            self.warheadPerRaid += 1
-            self.warheadRaidInterval -= 0.1
+            self.warheadPerRaid = 10
+            self.bomberPerRaid = 2
+            self.enemyWarheadVelocityCandidates.append(110)
+            self.enemyWarheadVelocityCandidates.append(120)
         } else if time == 180 {
             self.generateDifficultyLabel(text: "6", fontColor: .orange)
             self.warheadPerRaid = 5
-            self.warheadRaidInterval = 2.9
-            self.tzarPerRaid = 1
-            self.tzarRaidInterval = 22.2
+            self.warheadRaidInterval = 3.0
+            self.bomberPerRaid = 1
+            self.bomberRaidInterval = 21.1
             self.enemyWarheadVelocityCandidates.append(100)
         } else if time == 150 {
             self.generateDifficultyLabel(text: "5", fontColor: .yellow)
@@ -564,9 +587,9 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         } else if time == 120 {
             self.generateDifficultyLabel(text: "4", fontColor: .yellow)
             self.warheadPerRaid = 4
-            self.warheadRaidInterval = 3.1
-            self.bomberPerRaid = 1
-            self.bomberRaidInterval = 18.1
+            self.warheadRaidInterval = 3.2
+            self.tzarPerRaid = 1
+            self.tzarRaidInterval = 14.2
         } else if time == 90 {
             self.generateDifficultyLabel(text: "3", fontColor: .white)
             self.enemyWarheadVelocityCandidates.append(80)
@@ -574,7 +597,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         } else if time == 60 {
             self.generateDifficultyLabel(text: "2", fontColor: .white)
             self.warheadPerRaid = 3
-            self.warheadRaidInterval = 3.3
+            self.warheadRaidInterval = 3.4
             self.enemyWarheadVelocityCandidates.append(70)
             self.enemyWarheadBlastRangeCandidates.append(55)
         } else if time == 30 {
@@ -584,7 +607,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         } else if time == 0{
             self.generateDifficultyLabel(text: "0", fontColor: .white)
             self.warheadPerRaid = 2
-            self.warheadRaidInterval = 3.5
+            self.warheadRaidInterval = 3.6
         }
     }
     
