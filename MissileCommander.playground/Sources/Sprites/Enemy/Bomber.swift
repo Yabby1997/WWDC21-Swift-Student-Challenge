@@ -38,7 +38,8 @@ public class Bomber: SKSpriteNode {
     func attack(fromRight: Bool, bombingDuration: Double, blastRange: Int) {
         let wait = SKAction.wait(forDuration: bombingDuration)
         let bomb = SKAction.run {
-            let targetCoordinate = CGPoint(x: self.position.x + (fromRight ? -100 : 100), y: 25)
+            let momentum = CGFloat.random(in: 100...200)
+            let targetCoordinate = CGPoint(x: self.position.x + (fromRight ? -1 * momentum : momentum), y: 25)
             let distance = getDistance(from: self.position, to: targetCoordinate)
             let warhead = EnemyWarhead(position: self.position,
                                        distance: distance,
