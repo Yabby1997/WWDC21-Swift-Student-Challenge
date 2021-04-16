@@ -7,7 +7,7 @@ public class PlayerExplosion: Explosion {
         super.init(position: position, blastRange: blastRange, gameScene: gameScene)
         
         self.physicsBody?.categoryBitMask = playerExplosionCategory
-        self.physicsBody?.contactTestBitMask = self.physicsBody!.contactTestBitMask | ammunitionItemCategory | blastItemCategory | speedItemCategory | durationItemCategory | reloadItemCategory
+        self.physicsBody?.contactTestBitMask = self.physicsBody!.contactTestBitMask | ammunitionItemCategory | blastItemCategory | velocityItemCategory | durationItemCategory | reloadItemCategory | siloItemCategory | cityItemCategory
         
         guard let explosionSound = explosionSound else { return }
         explosionSound.play()

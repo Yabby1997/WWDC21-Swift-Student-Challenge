@@ -1,12 +1,12 @@
 import SpriteKit
 
-public class Duration: Item {
+public class SiloItem: Item {
     init(position: CGPoint, mutateCount: Int = 0, gameScene: SKScene) {
-        super.init(texture: SKTexture(imageNamed: "Sprite/duration.png"), position: position, mutateCount: mutateCount, gameScene: gameScene)
+        super.init(texture: SKTexture(imageNamed: "Sprite/silo_item.png"), position: position, mutateCount: mutateCount, gameScene: gameScene)
         
-        self.physicsBody?.categoryBitMask = durationItemCategory
+        self.physicsBody?.categoryBitMask = siloItemCategory
         
-        self.color = .orange
+        self.color = .cyan
         self.colorBlendFactor = 1.0
     }
     

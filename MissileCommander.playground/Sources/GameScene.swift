@@ -15,72 +15,47 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     
     private var time: Int = 0 {
         didSet {
-            setTimeLabel(alwaysDisplayColon: false)
-            if !isGameOver {
-                if time == 1 {
-                    print("0")
-                    self.warheadPerRaid = 10
-                    self.warheadRaidInterval = 10.0
-                } else if time == 30 {
-                    print("30")
-                    self.warheadPerRaid = 20
-                } else if time == 60 {
-                    print("60")
-                    self.enemyWarheadVelocityCandidates.append(75)
-                    self.enemyWarheadBlastRangeCandidates.append(50)
-                } else if time == 90 {
-                    print("90")
-                    self.bomberPerRaid = 1
-                    self.bomberRaidInterval = 15.0
-                } else if time == 120 {
-                    print("120")
-                    self.enemyWarheadVelocityCandidates.append(100)
-                    self.enemyWarheadVelocityCandidates.append(60)
-                } else if time == 150 {
-                    print("150")
-                    self.tzarPerRaid = 1
-                    self.tzarRaidInterval = 18.0
-                } else if time == 180 {
-                    print("180")
-                    self.bomberPerRaid = 2
-                    self.bomberRaidInterval = 12.0
-                } else if time == 210 {
-                    print("210")
-                    self.tzarPerRaid = 2
-                    self.tzarRaidInterval = 17.0
-                } else if time == 240 {
-                    print("240")
-                    self.warheadPerRaid = 30
-                    self.warheadRaidInterval = 7.2
-                }
-            }
+            self.setTimeLabel(alwaysDisplayColon: false)
+            //self.setDifficulty(time: time)
         }
     }
     
     // MARK: - Player buildings
-    private var siloLocation: [Int] = [2, 10, 18] {
+    private let locations: [Int] = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    
+    private var silos: [Silo] = []
+    private var siloLocation: [Int] = [1, 5, 9] {
         didSet {
+            print("siloLocation : \(siloLocation)")
             if siloLocation.isEmpty {
                 self.gameOver()
             }
         }
     }
-    private var silos: [Silo] = []
-    private var cityLocation: [Int] = [4, 6, 8, 12, 14, 16] {
+    
+    private var cities: [City] = [] 
+    private var cityLocation: [Int] = [2, 3, 4, 6, 7, 8] {
         didSet {
+            print("cityLocation : \(cityLocation)")
             if cityLocation.isEmpty {
                 self.gameOver()
             }
         }
     }
     
-    private var cities: [City] = []
+    private var occupiedLocations: [Int] {
+        return self.cityLocation + self.siloLocation
+    }
+    
+    private var availableLocations: [Int] {
+        return self.locations.difference(from: self.occupiedLocations)
+    }
+
     private var randomTargetLocation: Int? {
-        let candidates = cityLocation + siloLocation
-        if candidates.isEmpty {
+        if self.occupiedLocations.isEmpty {
             return nil
         } else {
-            return candidates.randomElement()
+            return self.occupiedLocations.randomElement()
         }
     }
     
@@ -118,29 +93,36 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
-    private var enemyWarheadVelocityCandidates: [Int] = [50]
-    private var enemyWarheadBlastRangeCandidates: [Int] = [40]
+    private var enemyWarheadVelocityCandidates: [Int] = [50, 75]
+    private var enemyWarheadBlastRangeCandidates: [Int] = [40, 50]
+    
+    private var playerExplosionWarheadDropProbability: Double = 5
+    private var enemyExplosionWarheadDropProbability: Double = 8
+    private var playerExplosionTzarDropProbability: Double = 30
+    private var enemyExplosionTzarDropProbability: Double = 33
+    private var playerExplosionBomberDropProbability: Double = 10
+    private var enemyExplosionBomberDropProbability: Double = 13
     
     // MARK: - Player Status
     static let itemScore: UInt64 = 10000
     
-    static let initialPlayerMissileCapacity: Int = 3
-    static let initialPlayerMissileReloadTime: Double = 5.0
+    static let initialPlayerMissileCapacity: Int = 2
+    static let initialPlayerMissileReloadTime: Double = 3.0
     static let initialPlayerMissileVelocity: CGFloat = 200
     static let initialPlayerExplosionBlastRange: Int = 40
     static let initialGlobalExplosionDuration: Double = 0.5
     
     static let maximumPlayerMissileCapacity: Int = 5
-    static let minimumPlayerMissileReloadTime: Double = 2.0
+    static let minimumPlayerMissileReloadTime: Double = 1.5
     static let maximumPlayerMissileVelocity: CGFloat = 450
-    static let maximumPlayerExplosionBlastRange: Int = 60
+    static let maximumPlayerExplosionBlastRange: Int = 65
     static let maximumGlobalExplosionDuration: Double = 1.5
     
-    static let missileCapacityUpgradeAmount: Int = (maximumPlayerMissileCapacity - initialPlayerMissileCapacity) / 2
-    static let missileReloadTimeUpgradeAmount: Double = (minimumPlayerMissileReloadTime - initialPlayerMissileReloadTime) / 2
-    static let missileVelocityUpgradeAmount: CGFloat = (maximumPlayerMissileVelocity - initialPlayerMissileVelocity) / 2
-    static let explosionBlastRangeUpgradeAmount: Int = (maximumPlayerExplosionBlastRange - initialPlayerExplosionBlastRange) / 2
-    static let explosionDurationUpgradeAmount: Double = (maximumGlobalExplosionDuration - initialGlobalExplosionDuration) / 2
+    static let missileCapacityUpgradeAmount: Int = (maximumPlayerMissileCapacity - initialPlayerMissileCapacity) / 3
+    static let missileReloadTimeUpgradeAmount: Double = (minimumPlayerMissileReloadTime - initialPlayerMissileReloadTime) / 5
+    static let missileVelocityUpgradeAmount: CGFloat = (maximumPlayerMissileVelocity - initialPlayerMissileVelocity) / 5
+    static let explosionBlastRangeUpgradeAmount: Int = (maximumPlayerExplosionBlastRange - initialPlayerExplosionBlastRange) / 5
+    static let explosionDurationUpgradeAmount: Double = (maximumGlobalExplosionDuration - initialGlobalExplosionDuration) / 5
     
     private var playerMissileCapacity: Int = initialPlayerMissileCapacity
     private var playerMissileReloadTime: Double = initialPlayerMissileReloadTime
@@ -162,6 +144,14 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     public var isGlobalExplosionDurationUpgradable: Bool {
         self.globalExplosionDuration < GameScene.maximumGlobalExplosionDuration
+    }
+    public var isPlayerCityRebuildable: Bool {
+        print("isPlayerCityRebuildable : \(cities.count)")
+        return self.cities.count < 6
+    }
+    public var isPlayerSiloRebuildable: Bool {
+        print("isPlayerSiloRebuildable : \(silos.count)")
+        return self.silos.count < 3
     }
     
     func getMissileCapacity() -> Int {
@@ -186,7 +176,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     
     // MARK: - Entrypoint to GameScene
     public override func didMove(to view: SKView) {
-        print("TEST60")
+        print("TEST65")
         physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
         physicsBody?.friction = 0.0
         
@@ -200,8 +190,15 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         generateCities()
         
         self.dropRandomItem(probability: 100, position: CGPoint(x: frame.midX - 100, y: frame.midY))
+        self.dropRandomItem(probability: 100, position: CGPoint(x: frame.midX - 50, y: frame.midY))
         self.dropRandomItem(probability: 100, position: CGPoint(x: frame.midX, y: frame.midY))
-        self.dropRandomItem(probability: 100, position: CGPoint(x: frame.midX + 100, y: frame.midY))
+        self.dropRandomItem(probability: 100, position: CGPoint(x: frame.midX + 50, y: frame.midY))
+        self.dropRandomItem(probability: 100, position: CGPoint(x: frame.midX + 100, y: frame.midY + 50))
+        self.dropRandomItem(probability: 100, position: CGPoint(x: frame.midX - 100, y: frame.midY + 50))
+        self.dropRandomItem(probability: 100, position: CGPoint(x: frame.midX - 50, y: frame.midY + 50))
+        self.dropRandomItem(probability: 100, position: CGPoint(x: frame.midX, y: frame.midY + 50))
+        self.dropRandomItem(probability: 100, position: CGPoint(x: frame.midX + 50, y: frame.midY + 50))
+        self.dropRandomItem(probability: 100, position: CGPoint(x: frame.midX + 100, y: frame.midY + 50))
     }
     
     // MARK: - Collision
@@ -224,9 +221,9 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
                 self.addChild(newExplosion)
                 
                 if blastRange == 300 {
-                    self.dropRandomItem(probability: 30, position: contact.contactPoint)
+                    self.dropRandomItem(probability: self.playerExplosionTzarDropProbability, position: contact.contactPoint)
                 } else {
-                    self.dropRandomItem(probability: 3, position: contact.contactPoint)
+                    self.dropRandomItem(probability: self.playerExplosionWarheadDropProbability, position: contact.contactPoint)
                 }
             }
             
@@ -243,10 +240,12 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
                 self.generateComboLabel(combo: combo, position: contact.contactPoint, range: blastRange)
                 self.addChild(newExplosion)
                 
-                if blastRange == 300 {
-                    self.dropRandomItem(probability: 50, position: contact.contactPoint)
-                } else {
-                    self.dropRandomItem(probability: 5, position: contact.contactPoint)
+                if combo != 0 {
+                    if blastRange == 300 {
+                        self.dropRandomItem(probability: self.enemyExplosionTzarDropProbability, position: contact.contactPoint)
+                    } else {
+                        self.dropRandomItem(probability: self.enemyExplosionWarheadDropProbability, position: contact.contactPoint)
+                    }
                 }
             }
             
@@ -260,7 +259,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             DispatchQueue.main.asyncAfter(deadline: .now() + explosionChainingDelay) {
                 let newExplosion = EnemyExplosion(position: contact.contactPoint, blastRange: blastRange, chainingCombo: 1, gameScene: self)
                 self.addChild(newExplosion)
-                self.dropRandomItem(probability: 10, position: contact.contactPoint)
+                self.dropRandomItem(probability: self.playerExplosionBomberDropProbability, position: contact.contactPoint)
             }
             
         case collisionBetweenEnemyBomberAndEnemyExplosion:
@@ -275,7 +274,10 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
                 let newExplosion = EnemyExplosion(position: contact.contactPoint, blastRange: blastRange, chainingCombo: combo == 0 ? 0 : combo + 1, gameScene: self)
                 self.generateComboLabel(combo: combo, position: contact.contactPoint, range: blastRange)
                 self.addChild(newExplosion)
-                self.dropRandomItem(probability: 20, position: contact.contactPoint)
+                
+                if combo != 0 {
+                    self.dropRandomItem(probability: self.enemyExplosionBomberDropProbability, position: contact.contactPoint)
+                }
             }
             
         case collisionBetweenPlayerSiloAndEnemyExplosion, collisionBetweenPlayerSiloAndPlayerExplosion:
@@ -289,49 +291,67 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             city.removeFromParent()
             
         case collisionBetweenAmmunitionItemAndPlayerExplosion:
-            let ammunition = (contact.bodyA.categoryBitMask == ammunitionItemCategory ? nodeA : nodeB) as! Ammunition
+            let ammunition = (contact.bodyA.categoryBitMask == ammunitionItemCategory ? nodeA : nodeB) as! AmmunitionItem
             let explosion = (contact.bodyA.categoryBitMask == playerExplosionCategory ? nodeA : nodeB) as! PlayerExplosion
             let blastRange = explosion.blastRange
             
-            self.generateItemLabel(upgradable: self.isPlayerMissileCapacityUpgradable, itemName: "Ammunition", color: SKColor.yellow, position: contact.contactPoint, range: blastRange)
+            self.generateItemLabel(upgradable: self.isPlayerMissileCapacityUpgradable, itemName: "Ammunition Capacity", color: SKColor.yellow, position: contact.contactPoint, range: blastRange)
             self.upgradePlayerMissileCapacity()
             ammunition.removeFromParent()
             
         case collisionBetweenBlastItemAndPlayerExplosion:
-            let blast = (contact.bodyA.categoryBitMask == blastItemCategory ? nodeA : nodeB) as! Blast
+            let blast = (contact.bodyA.categoryBitMask == blastItemCategory ? nodeA : nodeB) as! BlastItem
             let explosion = (contact.bodyA.categoryBitMask == playerExplosionCategory ? nodeA : nodeB) as! PlayerExplosion
             let blastRange = explosion.blastRange
             
-            self.generateItemLabel(upgradable: self.isPlayerExplosionBlastRangeUpgradable, itemName: "Blast", color: SKColor.red, position: contact.contactPoint, range: blastRange)
+            self.generateItemLabel(upgradable: self.isPlayerExplosionBlastRangeUpgradable, itemName: "Explosion Blast", color: SKColor.red, position: contact.contactPoint, range: blastRange)
             self.upgradePlayerExplosionBlastRange()
             blast.removeFromParent()
             
         case collisionBetweenDurationItemAndPlayerExplosion:
-            let duration = (contact.bodyA.categoryBitMask == durationItemCategory ? nodeA : nodeB) as! Duration
+            let duration = (contact.bodyA.categoryBitMask == durationItemCategory ? nodeA : nodeB) as! DurationItem
             let explosion = (contact.bodyA.categoryBitMask == playerExplosionCategory ? nodeA : nodeB) as! PlayerExplosion
             let blastRange = explosion.blastRange
             
-            self.generateItemLabel(upgradable: self.isGlobalExplosionDurationUpgradable, itemName: "Duration", color: SKColor.orange, position: contact.contactPoint, range: blastRange)
+            self.generateItemLabel(upgradable: self.isGlobalExplosionDurationUpgradable, itemName: "Explosion Duration", color: SKColor.orange, position: contact.contactPoint, range: blastRange)
             self.upgradeGlobalExplosionDuration()
             duration.removeFromParent()
             
         case collisionBetweenReloadItemAndPlayerExplosion:
-            let reload = (contact.bodyA.categoryBitMask == reloadItemCategory ? nodeA : nodeB) as! Reload
+            let reload = (contact.bodyA.categoryBitMask == reloadItemCategory ? nodeA : nodeB) as! ReloadItem
             let explosion = (contact.bodyA.categoryBitMask == playerExplosionCategory ? nodeA : nodeB) as! PlayerExplosion
             let blastRange = explosion.blastRange
             
-            self.generateItemLabel(upgradable: self.isPlayerMissileReloadTimeUpgradable, itemName: "Reload", color: SKColor.blue, position: contact.contactPoint, range: blastRange)
+            self.generateItemLabel(upgradable: self.isPlayerMissileReloadTimeUpgradable, itemName: "Reload Time", color: SKColor.blue, position: contact.contactPoint, range: blastRange)
             self.upgradePlayerMissileReloadTime()
             reload.removeFromParent()
             
-        case collisionBetweenSpeedItemAndPlayerExplosion:
-            let speed = (contact.bodyA.categoryBitMask == speedItemCategory ? nodeA : nodeB) as! Speed
+        case collisionBetweenVelocityItemAndPlayerExplosion:
+            let velocity = (contact.bodyA.categoryBitMask == velocityItemCategory ? nodeA : nodeB) as! VelocityItem
             let explosion = (contact.bodyA.categoryBitMask == playerExplosionCategory ? nodeA : nodeB) as! PlayerExplosion
             let blastRange = explosion.blastRange
             
-            self.generateItemLabel(upgradable: self.isPlayerMissileVelocityUpgradable, itemName: "Speed", color: SKColor.green, position: contact.contactPoint, range: blastRange)
+            self.generateItemLabel(upgradable: self.isPlayerMissileVelocityUpgradable, itemName: "Missile Velocity", color: SKColor.green, position: contact.contactPoint, range: blastRange)
             self.upgradePlayerMissileVelocity()
-            speed.removeFromParent()
+            velocity.removeFromParent()
+            
+        case collisionBetweenCityItemAndPlayerExplosion:
+            let city = (contact.bodyA.categoryBitMask == cityItemCategory ? nodeA : nodeB) as! CityItem
+            let explosion = (contact.bodyA.categoryBitMask == playerExplosionCategory ? nodeA : nodeB) as! PlayerExplosion
+            let blastRange = explosion.blastRange
+            
+            self.generateItemLabel(upgradable: self.isPlayerCityRebuildable, itemName: "New City", color: SKColor.magenta, position: contact.contactPoint, range: blastRange)
+            self.rebuildPlayerCity(position: contact.contactPoint)
+            city.removeFromParent()
+            
+        case collisionBetweenSiloItemAndPlayerExplosion:
+            let silo = (contact.bodyA.categoryBitMask == siloItemCategory ? nodeA : nodeB) as! SiloItem
+            let explosion = (contact.bodyA.categoryBitMask == playerExplosionCategory ? nodeA : nodeB) as! PlayerExplosion
+            let blastRange = explosion.blastRange
+            
+            self.generateItemLabel(upgradable: self.isPlayerSiloRebuildable, itemName: "New Silo", color: SKColor.cyan, position: contact.contactPoint, range: blastRange)
+            self.rebuildPlayerSilo(position: contact.contactPoint)
+            silo.removeFromParent()
             
         default:
             print("missing collision type")
@@ -379,6 +399,38 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         if self.isGlobalExplosionDurationUpgradable {
             self.globalExplosionDuration += GameScene.explosionDurationUpgradeAmount
         } else {
+            self.playerScore += GameScene.itemScore
+            self.reloadAllSilos()
+        }
+    }
+    
+    func rebuildPlayerCity(position: CGPoint) {
+        if self.isPlayerCityRebuildable {
+            print("REBUILD CITY")
+            guard let location = self.getClosestAvailableLocation(targetCoordinate: position) else { return }
+            let coordinate = self.calculateActualCoordinateOfLocation(location: location)
+            let city = City(position: coordinate)
+            cities.append(city)
+            cityLocation.append(location)
+            self.addChild(city)
+        } else {
+            print("CAN NOT REBUILD CITY")
+            self.playerScore += GameScene.itemScore
+            self.reloadAllSilos()
+        }
+    }
+    
+    func rebuildPlayerSilo(position: CGPoint) {
+        if self.isPlayerSiloRebuildable {
+            print("REBUILD SILO")
+            guard let location = self.getClosestAvailableLocation(targetCoordinate: position) else { return }
+            let coordinate = self.calculateActualCoordinateOfLocation(location: location)
+            let silo = Silo(position: coordinate, gameScene: self)
+            silos.append(silo)
+            siloLocation.append(location)
+            self.addChild(silo)
+        } else {
+            print("CAN NOT REBUILD SILO")
             self.playerScore += GameScene.itemScore
             self.reloadAllSilos()
         }
@@ -441,6 +493,21 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         return (closestSilo, closestDistance) as? (Silo, CGFloat)
     }
     
+    func getClosestAvailableLocation(targetCoordinate: CGPoint) -> Int? {
+        var closestDistance: CGFloat = 10_000
+        var closestLocation: Int?
+        
+        for location in self.availableLocations {
+            let candidatePosition = self.calculateActualCoordinateOfLocation(location: location)
+            let candidateDistance = getDistance(from: candidatePosition, to: targetCoordinate)
+            if candidateDistance < closestDistance {
+                closestLocation = location
+                closestDistance = candidateDistance
+            }
+        }
+        return closestLocation
+    }
+    
     func removeSiloFromGameScene(targetSilo: Silo) {
         guard let targetIndex = self.silos.firstIndex(of: targetSilo) else { return }
         self.silos.remove(at: targetIndex)
@@ -454,6 +521,10 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     // MARK: - Game related methods
+    func calculateActualCoordinateOfLocation(location: Int) -> CGPoint {
+        return CGPoint(x: location * 60, y : 25)
+    }
+    
     func reloadAllSilos() {
         for silo in self.silos {
             silo.numOfLoadedMissiles = self.playerMissileCapacity
@@ -486,6 +557,44 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         generateRetryButtonLabel()
     }
     
+    func setDifficulty(time: Int) {
+        if isGameOver { return }
+        
+        if time > 180 && (time % 30 == 0) {
+            print("+180")
+        } else if time == 180 {
+            self.warheadPerRaid = 8
+            self.warheadRaidInterval = 2.1
+            print("180")
+            self.warheadPerRaid = 7
+            self.warheadRaidInterval = 2.3
+        } else if time == 150 {
+            print("150")
+            self.warheadPerRaid = 6
+            self.warheadRaidInterval = 2.5
+        } else if time == 120 {
+            print("120")
+            self.warheadPerRaid = 5
+            self.warheadRaidInterval = 2.7
+        } else if time == 90 {
+            print("90")
+            self.warheadPerRaid = 4
+            self.warheadRaidInterval = 2.9
+        } else if time == 60 {
+            print("60")
+            self.warheadPerRaid = 3
+            self.warheadRaidInterval = 3.1
+        } else if time == 30 {
+            print("30")
+            self.warheadPerRaid = 2
+            self.warheadRaidInterval = 3.3
+        } else if time == 0{
+            print("0")
+            self.warheadPerRaid = 1
+            self.warheadRaidInterval = 3.5
+        }
+    }
+    
     // MARK: - Generating sprites
     func dropRandomItem(probability: Double, position: CGPoint) {
         if gacha(probability: probability) {
@@ -496,19 +605,23 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func generateRandomItem(position: CGPoint) {
-        let randomPick = Int.random(in: 1...5)
+        let randomPick = Int.random(in: 1...7)
         var randomItem: Item?
         switch randomPick {
         case 1:
-            randomItem = Ammunition(position: position, gameScene: self)
+            randomItem = AmmunitionItem(position: position, gameScene: self)
         case 2:
-            randomItem = Blast(position: position, gameScene: self)
+            randomItem = BlastItem(position: position, gameScene: self)
         case 3:
-            randomItem = Duration(position: position, gameScene: self)
+            randomItem = DurationItem(position: position, gameScene: self)
         case 4:
-            randomItem = Reload(position: position, gameScene: self)
+            randomItem = ReloadItem(position: position, gameScene: self)
         case 5:
-            randomItem = Speed(position: position, gameScene: self)
+            randomItem = VelocityItem(position: position, gameScene: self)
+        case 6:
+            randomItem = SiloItem(position: position, gameScene: self)
+        case 7:
+            randomItem = CityItem(position: position, gameScene: self)
         default:
             print("missing item pick")
         }
@@ -573,13 +686,12 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     
     @objc func generateEnemyWarhead() {
         for _ in 1...warheadPerRaid {
-            guard let randomTargetX = self.randomTargetLocation else {
+            guard let randomTargetLocation = self.randomTargetLocation else {
                 print("no targets are available")
                 return
             }
             
-            let toX = randomTargetX * 30
-            let to = CGPoint(x: toX, y: 25)
+            let to = self.calculateActualCoordinateOfLocation(location: randomTargetLocation)
             let fromX = Int.random(in: 1...600)
             let from = CGPoint(x: fromX, y: 500)
             
@@ -603,13 +715,12 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     
     @objc func generateEnemyTzar() {
         for _ in 1...tzarPerRaid {
-            guard let randomTargetX = self.randomTargetLocation else {
+            guard let randomTargetLocation = self.randomTargetLocation else {
                 print("no targets are available")
                 return
             }
             
-            let toX = randomTargetX * 30
-            let to = CGPoint(x: toX, y: 25)
+            let to = self.calculateActualCoordinateOfLocation(location: randomTargetLocation)
             let fromX = Int.random(in: 1...600)
             let from = CGPoint(x: fromX, y: 500)
             
@@ -633,12 +744,12 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func generateTimeLabel() {
         self.timeLabel = SKLabelNode(fontNamed: "PressStart2P")
-        self.timeLabel?.text = "00"
         self.timeLabel?.fontSize = 20
         self.timeLabel?.fontColor = SKColor.white
         self.timeLabel?.position = CGPoint(x: frame.midX, y: 470)
         self.timeLabel?.zPosition = 50
         self.addChild(timeLabel!)
+        self.time = 0
         let countOneSecond = SKAction.run {
             self.time = self.time + 1
         }
@@ -647,11 +758,8 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func generateSilos() {
-        for i in siloLocation {
-            let x = i * 30
-            let y = 25
-            let position = CGPoint(x: x, y: y)
-            
+        for location in siloLocation {
+            let position = self.calculateActualCoordinateOfLocation(location: location)
             let silo = Silo(position: position, gameScene: self)
             silos.append(silo)
             
@@ -660,11 +768,8 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func generateCities() {
-        for i in cityLocation {
-            let x = i * 30
-            let y = 25
-            let position = CGPoint(x: x, y: y)
-            
+        for location in cityLocation {
+            let position = self.calculateActualCoordinateOfLocation(location: location)
             let city = City(position: position)
             cities.append(city)
             

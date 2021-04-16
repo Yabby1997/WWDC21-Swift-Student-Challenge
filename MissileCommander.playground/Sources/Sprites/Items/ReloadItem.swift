@@ -1,12 +1,12 @@
 import SpriteKit
 
-public class Blast: Item {
+public class ReloadItem: Item {
     init(position: CGPoint, mutateCount: Int = 0, gameScene: SKScene) {
-        super.init(texture: SKTexture(imageNamed: "Sprite/blast.png"), position: position, mutateCount: mutateCount, gameScene: gameScene)
+        super.init(texture: SKTexture(imageNamed: "Sprite/reload_item.png"), position: position, mutateCount: mutateCount, gameScene: gameScene)
         
-        self.physicsBody?.categoryBitMask = blastItemCategory
+        self.physicsBody?.categoryBitMask = reloadItemCategory
         
-        self.color = .red
+        self.color = .blue
         self.colorBlendFactor = 1.0
     }
     

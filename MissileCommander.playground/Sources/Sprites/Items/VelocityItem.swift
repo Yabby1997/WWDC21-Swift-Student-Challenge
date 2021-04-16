@@ -1,10 +1,10 @@
 import SpriteKit
 
-public class Speed: Item {
+public class VelocityItem: Item {
     init(position: CGPoint, mutateCount: Int = 0, gameScene: SKScene) {
-        super.init(texture: SKTexture(imageNamed: "Sprite/speed.png"), position: position, mutateCount: mutateCount, gameScene: gameScene)
+        super.init(texture: SKTexture(imageNamed: "Sprite/velocity_item.png"), position: position, mutateCount: mutateCount, gameScene: gameScene)
         
-        self.physicsBody?.categoryBitMask = speedItemCategory
+        self.physicsBody?.categoryBitMask = velocityItemCategory
         
         self.color = .green
         self.colorBlendFactor = 1.0

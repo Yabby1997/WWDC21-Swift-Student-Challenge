@@ -23,20 +23,24 @@ public class Item: SKSpriteNode {
     }
     
     func mutate() {
-        if mutateCount < 3 {
-            let randomPick = Int.random(in: 1...5)
+        if mutateCount < 1000 {
+            let randomPick = Int.random(in: 1...7)
             var randomItem: Item?
             switch randomPick {
             case 1:
-                randomItem = Ammunition(position: self.position, mutateCount: self.mutateCount + 1, gameScene: self.gameScene)
+                randomItem = AmmunitionItem(position: self.position, mutateCount: self.mutateCount + 1, gameScene: self.gameScene)
             case 2:
-                randomItem = Blast(position: self.position, mutateCount: self.mutateCount + 1, gameScene: self.gameScene)
+                randomItem = BlastItem(position: self.position, mutateCount: self.mutateCount + 1, gameScene: self.gameScene)
             case 3:
-                randomItem = Duration(position: self.position, mutateCount: self.mutateCount + 1, gameScene: self.gameScene)
+                randomItem = DurationItem(position: self.position, mutateCount: self.mutateCount + 1, gameScene: self.gameScene)
             case 4:
-                randomItem = Reload(position: self.position, mutateCount: self.mutateCount + 1, gameScene: self.gameScene)
+                randomItem = ReloadItem(position: self.position, mutateCount: self.mutateCount + 1, gameScene: self.gameScene)
             case 5:
-                randomItem = Speed(position: self.position, mutateCount: self.mutateCount + 1, gameScene: self.gameScene)
+                randomItem = VelocityItem(position: self.position, mutateCount: self.mutateCount + 1, gameScene: self.gameScene)
+            case 6:
+                randomItem = SiloItem(position: self.position, mutateCount: self.mutateCount + 1, gameScene: self.gameScene)
+            case 7:
+                randomItem = CityItem(position: self.position, mutateCount: self.mutateCount + 1, gameScene: self.gameScene)
             default:
                 print("missing item pick")
             }
