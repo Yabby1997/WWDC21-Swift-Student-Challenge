@@ -16,7 +16,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     private var time: Int = 0 {
         didSet {
             self.setTimeLabel(alwaysDisplayColon: false)
-            //self.setDifficulty(time: time)
+            self.setDifficulty(time: time)
         }
     }
     
@@ -26,7 +26,6 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     private var silos: [Silo] = []
     private var siloLocation: [Int] = [1, 5, 9] {
         didSet {
-            print("siloLocation : \(siloLocation)")
             if siloLocation.isEmpty {
                 self.gameOver()
             }
@@ -36,7 +35,6 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     private var cities: [City] = [] 
     private var cityLocation: [Int] = [2, 3, 4, 6, 7, 8] {
         didSet {
-            print("cityLocation : \(cityLocation)")
             if cityLocation.isEmpty {
                 self.gameOver()
             }
@@ -93,15 +91,15 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
-    private var enemyWarheadVelocityCandidates: [Int] = [50, 75]
-    private var enemyWarheadBlastRangeCandidates: [Int] = [40, 50]
+    private var enemyWarheadVelocityCandidates: [Int] = [50, 55]
+    private var enemyWarheadBlastRangeCandidates: [Int] = [40, 45]
     
-    private var playerExplosionWarheadDropProbability: Double = 5
-    private var enemyExplosionWarheadDropProbability: Double = 8
-    private var playerExplosionTzarDropProbability: Double = 30
-    private var enemyExplosionTzarDropProbability: Double = 33
-    private var playerExplosionBomberDropProbability: Double = 10
-    private var enemyExplosionBomberDropProbability: Double = 13
+    private var playerExplosionWarheadDropProbability: Double = 3
+    private var enemyExplosionWarheadDropProbability: Double = 5
+    private var playerExplosionTzarDropProbability: Double = 5
+    private var enemyExplosionTzarDropProbability: Double = 8
+    private var playerExplosionBomberDropProbability: Double = 5
+    private var enemyExplosionBomberDropProbability: Double = 8
     
     // MARK: - Player Status
     static let itemScore: UInt64 = 10000
@@ -146,11 +144,9 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         self.globalExplosionDuration < GameScene.maximumGlobalExplosionDuration
     }
     public var isPlayerCityRebuildable: Bool {
-        print("isPlayerCityRebuildable : \(cities.count)")
         return self.cities.count < 6
     }
     public var isPlayerSiloRebuildable: Bool {
-        print("isPlayerSiloRebuildable : \(silos.count)")
         return self.silos.count < 3
     }
     
@@ -176,7 +172,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     
     // MARK: - Entrypoint to GameScene
     public override func didMove(to view: SKView) {
-        print("TEST65")
+        print("TEST68")
         physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
         physicsBody?.friction = 0.0
         
@@ -188,17 +184,6 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         generateScoreLabel()
         generateSilos()
         generateCities()
-        
-        self.dropRandomItem(probability: 100, position: CGPoint(x: frame.midX - 100, y: frame.midY))
-        self.dropRandomItem(probability: 100, position: CGPoint(x: frame.midX - 50, y: frame.midY))
-        self.dropRandomItem(probability: 100, position: CGPoint(x: frame.midX, y: frame.midY))
-        self.dropRandomItem(probability: 100, position: CGPoint(x: frame.midX + 50, y: frame.midY))
-        self.dropRandomItem(probability: 100, position: CGPoint(x: frame.midX + 100, y: frame.midY + 50))
-        self.dropRandomItem(probability: 100, position: CGPoint(x: frame.midX - 100, y: frame.midY + 50))
-        self.dropRandomItem(probability: 100, position: CGPoint(x: frame.midX - 50, y: frame.midY + 50))
-        self.dropRandomItem(probability: 100, position: CGPoint(x: frame.midX, y: frame.midY + 50))
-        self.dropRandomItem(probability: 100, position: CGPoint(x: frame.midX + 50, y: frame.midY + 50))
-        self.dropRandomItem(probability: 100, position: CGPoint(x: frame.midX + 100, y: frame.midY + 50))
     }
     
     // MARK: - Collision
@@ -521,8 +506,10 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     // MARK: - Game related methods
-    func calculateActualCoordinateOfLocation(location: Int) -> CGPoint {
-        return CGPoint(x: location * 60, y : 25)
+    func calculateActualCoordinateOfLocation(location: Int, usePreciseLocation: Bool = true) -> CGPoint {
+        let xCoordinate = CGFloat(location * 60) + (usePreciseLocation ? 0 : CGFloat.random(in: -30...30))
+        let yCoordinate = CGFloat(25)
+        return CGPoint(x: xCoordinate, y: yCoordinate)
     }
     
     func reloadAllSilos() {
@@ -560,36 +547,54 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     func setDifficulty(time: Int) {
         if isGameOver { return }
         
-        if time > 180 && (time % 30 == 0) {
+        if time > 450{
+            print("max")
+        } else if time > 180 && ( time % 60 == 0) {
             print("+180")
+            self.tzarRaidInterval -= 0.3
+            self.bomberPerRaid += 1
+            self.bomberRaidInterval -= 0.2
+        } else if time > 180 && (time % 30 == 0) {
+            print("+180")
+            self.warheadPerRaid += 1
+            self.warheadRaidInterval -= 0.1
         } else if time == 180 {
-            self.warheadPerRaid = 8
-            self.warheadRaidInterval = 2.1
             print("180")
-            self.warheadPerRaid = 7
-            self.warheadRaidInterval = 2.3
+            self.generateRandomItem(position: CGPoint(x: CGFloat.random(in: 1...600), y: CGFloat.random(in: 50...500)))
+            self.warheadPerRaid = 5
+            self.warheadRaidInterval = 2.9
         } else if time == 150 {
             print("150")
-            self.warheadPerRaid = 6
-            self.warheadRaidInterval = 2.5
+            self.generateRandomItem(position: CGPoint(x: CGFloat.random(in: 1...600), y: CGFloat.random(in: 50...500)))
+            self.enemyWarheadVelocityCandidates.append(70)
+            self.enemyWarheadBlastRangeCandidates.append(60)
+            self.tzarPerRaid = 1
+            self.tzarRaidInterval = 17.1
         } else if time == 120 {
             print("120")
-            self.warheadPerRaid = 5
-            self.warheadRaidInterval = 2.7
-        } else if time == 90 {
-            print("90")
-            self.warheadPerRaid = 4
-            self.warheadRaidInterval = 2.9
-        } else if time == 60 {
-            print("60")
+            self.generateRandomItem(position: CGPoint(x: CGFloat.random(in: 1...600), y: CGFloat.random(in: 50...500)))
             self.warheadPerRaid = 3
             self.warheadRaidInterval = 3.1
-        } else if time == 30 {
-            print("30")
+        } else if time == 90 {
+            print("90")
+            self.generateRandomItem(position: CGPoint(x: CGFloat.random(in: 1...600), y: CGFloat.random(in: 50...500)))
+            self.enemyWarheadVelocityCandidates.append(65)
+            self.enemyWarheadBlastRangeCandidates.append(55)
+            self.bomberPerRaid = 1
+            self.bomberRaidInterval = 11.7
+        } else if time == 60 {
+            print("60")
+            self.generateRandomItem(position: CGPoint(x: CGFloat.random(in: 1...600), y: CGFloat.random(in: 50...500)))
             self.warheadPerRaid = 2
             self.warheadRaidInterval = 3.3
+        } else if time == 30 {
+            print("30")
+            self.generateRandomItem(position: CGPoint(x: CGFloat.random(in: 1...600), y: CGFloat.random(in: 50...500)))
+            self.enemyWarheadVelocityCandidates.append(60)
+            self.enemyWarheadBlastRangeCandidates.append(50)
         } else if time == 0{
             print("0")
+            self.generateRandomItem(position: CGPoint(x: CGFloat.random(in: 1...600), y: CGFloat.random(in: 50...500)))
             self.warheadPerRaid = 1
             self.warheadRaidInterval = 3.5
         }
@@ -691,7 +696,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
                 return
             }
             
-            let to = self.calculateActualCoordinateOfLocation(location: randomTargetLocation)
+            let to = self.calculateActualCoordinateOfLocation(location: randomTargetLocation, usePreciseLocation: false)
             let fromX = Int.random(in: 1...600)
             let from = CGPoint(x: fromX, y: 500)
             
@@ -705,10 +710,11 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     
     @objc func generateEnemyBomber() {
         for _ in 1...bomberPerRaid {
-            let fromY = Int.random(in: 300...450)
+            let fromY = Int.random(in: 200...450)
+            let flightTime = Double.random(in: 2...5)
             let bombingDuration = Double.random(in: 0.2...0.8)
             let blastRange =  self.enemyWarheadBlastRangeCandidates.randomElement()!
-            let bomber = Bomber(yPosition: CGFloat(fromY), fromRight: Bool.random(), bombingDuration: bombingDuration, blastRange: blastRange, gameScene: self)
+            let bomber = Bomber(yPosition: CGFloat(fromY), fromRight: Bool.random(), flightTime: flightTime, bombingDuration: bombingDuration, blastRange: blastRange, gameScene: self)
             addChild(bomber)
         }
     }
@@ -720,7 +726,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
                 return
             }
             
-            let to = self.calculateActualCoordinateOfLocation(location: randomTargetLocation)
+            let to = self.calculateActualCoordinateOfLocation(location: randomTargetLocation, usePreciseLocation: false)
             let fromX = Int.random(in: 1...600)
             let from = CGPoint(x: fromX, y: 500)
             

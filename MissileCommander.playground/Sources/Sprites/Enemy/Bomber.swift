@@ -3,7 +3,7 @@ import SpriteKit
 public class Bomber: SKSpriteNode {
     let gameScene: GameScene
     
-    public init(yPosition: CGFloat, fromRight: Bool, bombingDuration: Double, blastRange: Int, gameScene: GameScene) {
+    public init(yPosition: CGFloat, fromRight: Bool, flightTime: Double, bombingDuration: Double, blastRange: Int, gameScene: GameScene) {
         self.gameScene = gameScene
         
         super.init(texture: SKTexture(imageNamed: "Sprite/bomber.png"), color: .clear, size: CGSize(width: 50, height: 30))
@@ -21,7 +21,7 @@ public class Bomber: SKSpriteNode {
         
         self.position = CGPoint(x: fromRight ? 600 : 0, y: yPosition)
         
-        flyThrough(fromRight: fromRight)
+        flyThrough(fromRight: fromRight, flightTime: flightTime)
         attack(fromRight: fromRight, bombingDuration: bombingDuration, blastRange: blastRange)
     }
     
@@ -29,8 +29,8 @@ public class Bomber: SKSpriteNode {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func flyThrough(fromRight: Bool) {
-        let actionMove = SKAction.move(to: CGPoint(x: fromRight ? 0 : 600, y: self.position.y), duration: 5)
+    func flyThrough(fromRight: Bool, flightTime: Double) {
+        let actionMove = SKAction.move(to: CGPoint(x: fromRight ? 0 : 600, y: self.position.y), duration: TimeInterval(flightTime))
         let actionRemove = SKAction.removeFromParent()
         self.run(SKAction.sequence([actionMove, actionRemove]))
     }
