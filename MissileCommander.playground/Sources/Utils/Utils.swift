@@ -46,16 +46,6 @@ func getWarheadSize(blastRange: Int) -> Int {
     }
 }
 
-func getLineWidth(blastRange: Int) -> CGFloat {
-    if blastRange <= 50 {
-        return 2.0
-    } else if blastRange <= 150 {
-        return 3.0
-    } else {
-        return 4.0
-    }
-}
-
 func getDistance(from: CGPoint, to: CGPoint) -> CGFloat {
     let xDistance = from.x - to.x
     let yDistance = from.y - to.y

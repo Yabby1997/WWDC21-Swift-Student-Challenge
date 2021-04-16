@@ -172,7 +172,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     
     // MARK: - Entrypoint to GameScene
     public override func didMove(to view: SKView) {
-        print("TEST71")
+        print("TEST72")
         physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
         physicsBody?.friction = 0.0
         

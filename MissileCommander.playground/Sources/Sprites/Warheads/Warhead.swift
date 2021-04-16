@@ -6,7 +6,6 @@ public class Warhead: SKSpriteNode {
     var blastRange: Int
     var gameScene: GameScene
     var line: SKShapeNode = SKShapeNode()
-    var lineWidth: CGFloat
     var lineColor: UIColor = .white
     
     public init(position: CGPoint, distance: CGFloat, velocity: CGFloat, targetCoordinate: CGPoint, blastRange: Int, gameScene: GameScene) {
@@ -14,7 +13,6 @@ public class Warhead: SKSpriteNode {
         self.targetCoordinate = targetCoordinate
         self.blastRange = blastRange
         self.gameScene = gameScene
-        self.lineWidth = getLineWidth(blastRange: self.blastRange)
         
         let warheadSize = getWarheadSize(blastRange: self.blastRange)
         
@@ -41,7 +39,7 @@ public class Warhead: SKSpriteNode {
         path.addLine(to: to)
         line = SKShapeNode(path: path)
         line.strokeColor = self.lineColor
-        line.lineWidth = self.lineWidth
+        line.lineWidth = 2
         line.zPosition = -10
         self.gameScene.addChild(line)
     }
