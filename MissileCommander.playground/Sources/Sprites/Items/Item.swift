@@ -23,7 +23,7 @@ public class Item: SKSpriteNode {
     }
     
     func mutate() {
-        if mutateCount < 1000 {
+        if mutateCount < 3 {
             let randomPick = Int.random(in: 1...7)
             var randomItem: Item?
             switch randomPick {

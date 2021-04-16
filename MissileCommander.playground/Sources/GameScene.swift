@@ -172,7 +172,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     
     // MARK: - Entrypoint to GameScene
     public override func didMove(to view: SKView) {
-        print("TEST68")
+        print("TEST70")
         physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
         physicsBody?.friction = 0.0
         
@@ -391,7 +391,6 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func rebuildPlayerCity(position: CGPoint) {
         if self.isPlayerCityRebuildable {
-            print("REBUILD CITY")
             guard let location = self.getClosestAvailableLocation(targetCoordinate: position) else { return }
             let coordinate = self.calculateActualCoordinateOfLocation(location: location)
             let city = City(position: coordinate)
@@ -399,7 +398,6 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             cityLocation.append(location)
             self.addChild(city)
         } else {
-            print("CAN NOT REBUILD CITY")
             self.playerScore += GameScene.itemScore
             self.reloadAllSilos()
         }
@@ -407,16 +405,13 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func rebuildPlayerSilo(position: CGPoint) {
         if self.isPlayerSiloRebuildable {
-            print("REBUILD SILO")
             guard let location = self.getClosestAvailableLocation(targetCoordinate: position) else { return }
             let coordinate = self.calculateActualCoordinateOfLocation(location: location)
             let silo = Silo(position: coordinate, gameScene: self)
             silos.append(silo)
             siloLocation.append(location)
             self.addChild(silo)
-        } else {
-            print("CAN NOT REBUILD SILO")
-            self.playerScore += GameScene.itemScore
+        } else {            self.playerScore += GameScene.itemScore
             self.reloadAllSilos()
         }
     }
@@ -547,55 +542,48 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     func setDifficulty(time: Int) {
         if isGameOver { return }
         
-        if time > 450{
-            print("max")
-        } else if time > 180 && ( time % 60 == 0) {
-            print("+180")
+        if time < 450 && time > 180 && ( time % 60 == 0) {
             self.tzarRaidInterval -= 0.3
             self.bomberPerRaid += 1
             self.bomberRaidInterval -= 0.2
         } else if time > 180 && (time % 30 == 0) {
-            print("+180")
+            self.generateDifficultyLabel(text: "Hell", fontColor: .red)
             self.warheadPerRaid += 1
             self.warheadRaidInterval -= 0.1
         } else if time == 180 {
-            print("180")
-            self.generateRandomItem(position: CGPoint(x: CGFloat.random(in: 1...600), y: CGFloat.random(in: 50...500)))
+            self.generateDifficultyLabel(text: "6", fontColor: .orange)
             self.warheadPerRaid = 5
             self.warheadRaidInterval = 2.9
-        } else if time == 150 {
-            print("150")
-            self.generateRandomItem(position: CGPoint(x: CGFloat.random(in: 1...600), y: CGFloat.random(in: 50...500)))
-            self.enemyWarheadVelocityCandidates.append(70)
-            self.enemyWarheadBlastRangeCandidates.append(60)
             self.tzarPerRaid = 1
-            self.tzarRaidInterval = 17.1
+            self.tzarRaidInterval = 22.2
+            self.enemyWarheadVelocityCandidates.append(100)
+        } else if time == 150 {
+            self.generateDifficultyLabel(text: "5", fontColor: .yellow)
+            self.enemyWarheadVelocityCandidates.append(90)
+            self.enemyWarheadBlastRangeCandidates.append(65)
         } else if time == 120 {
-            print("120")
-            self.generateRandomItem(position: CGPoint(x: CGFloat.random(in: 1...600), y: CGFloat.random(in: 50...500)))
-            self.warheadPerRaid = 3
+            self.generateDifficultyLabel(text: "4", fontColor: .yellow)
+            self.warheadPerRaid = 4
             self.warheadRaidInterval = 3.1
-        } else if time == 90 {
-            print("90")
-            self.generateRandomItem(position: CGPoint(x: CGFloat.random(in: 1...600), y: CGFloat.random(in: 50...500)))
-            self.enemyWarheadVelocityCandidates.append(65)
-            self.enemyWarheadBlastRangeCandidates.append(55)
             self.bomberPerRaid = 1
-            self.bomberRaidInterval = 11.7
+            self.bomberRaidInterval = 18.1
+        } else if time == 90 {
+            self.generateDifficultyLabel(text: "3", fontColor: .white)
+            self.enemyWarheadVelocityCandidates.append(80)
+            self.enemyWarheadBlastRangeCandidates.append(60)
         } else if time == 60 {
-            print("60")
-            self.generateRandomItem(position: CGPoint(x: CGFloat.random(in: 1...600), y: CGFloat.random(in: 50...500)))
-            self.warheadPerRaid = 2
+            self.generateDifficultyLabel(text: "2", fontColor: .white)
+            self.warheadPerRaid = 3
             self.warheadRaidInterval = 3.3
+            self.enemyWarheadVelocityCandidates.append(70)
+            self.enemyWarheadBlastRangeCandidates.append(55)
         } else if time == 30 {
-            print("30")
-            self.generateRandomItem(position: CGPoint(x: CGFloat.random(in: 1...600), y: CGFloat.random(in: 50...500)))
+            self.generateDifficultyLabel(text: "1", fontColor: .white)
             self.enemyWarheadVelocityCandidates.append(60)
             self.enemyWarheadBlastRangeCandidates.append(50)
         } else if time == 0{
-            print("0")
-            self.generateRandomItem(position: CGPoint(x: CGFloat.random(in: 1...600), y: CGFloat.random(in: 50...500)))
-            self.warheadPerRaid = 1
+            self.generateDifficultyLabel(text: "0", fontColor: .white)
+            self.warheadPerRaid = 2
             self.warheadRaidInterval = 3.5
         }
     }
@@ -609,7 +597,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
-    func generateRandomItem(position: CGPoint) {
+    func generateRandomItem(position: CGPoint = CGPoint(x: CGFloat.random(in: 100...500), y: CGFloat.random(in: 100...400))) {
         let randomPick = Int.random(in: 1...7)
         var randomItem: Item?
         switch randomPick {
@@ -646,6 +634,22 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         self.run(SKAction.sequence([wait, show]))
     }
     
+    func generateDifficultyLabel(text: String, fontColor: UIColor) {
+        let difficultyLabel = SKLabelNode(fontNamed: "PressStart2P")
+        difficultyLabel.text = text
+        difficultyLabel.fontSize = 30
+        difficultyLabel.fontColor = fontColor
+        difficultyLabel.position = CGPoint(x: frame.midX, y: frame.midY)
+        difficultyLabel.zPosition = 100
+        if !isGameOver {
+            self.addChild(difficultyLabel)
+            let wait = SKAction.wait(forDuration: 3)
+            let delete = SKAction.run { difficultyLabel.removeFromParent() }
+            let item = SKAction.run { self.generateRandomItem() }
+            self.run(SKAction.sequence([wait, delete, item]))
+        }
+    }
+    
     func generateRetryButtonLabel() {
         let retryLabel = SKLabelNode(fontNamed: "PressStart2P")
         retryLabel.text = "Press here to try again"
@@ -655,8 +659,8 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         retryLabel.position = CGPoint(x: frame.midX, y: frame.midY - 20)
         retryLabel.zPosition = 100
         let wait = SKAction.wait(forDuration: 4)
-        let show = SKAction.run { self.addChild(retryLabel) }
-        self.run(SKAction.sequence([wait, show]))
+        let add = SKAction.run { self.addChild(retryLabel) }
+        self.run(SKAction.sequence([wait, add]))
     }
     
     func generateComboLabel(combo: Int, position: CGPoint, range: Int) {
