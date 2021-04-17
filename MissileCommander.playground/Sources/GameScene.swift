@@ -172,7 +172,6 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     
     // MARK: - Entrypoint to GameScene
     public override func didMove(to view: SKView) {
-        print("TEST72")
         physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
         physicsBody?.friction = 0.0
         
@@ -339,7 +338,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             silo.removeFromParent()
             
         default:
-            print("missing collision type")
+            break
         }
     }
     
@@ -574,7 +573,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
             self.enemyWarheadVelocityCandidates.append(110)
             self.enemyWarheadVelocityCandidates.append(120)
         } else if time == 180 {
-            self.generateDifficultyLabel(text: "6", fontColor: .orange)
+            self.generateDifficultyLabel(text: "Final", fontColor: .orange)
             self.warheadPerRaid = 5
             self.warheadRaidInterval = 3.0
             self.bomberPerRaid = 1
